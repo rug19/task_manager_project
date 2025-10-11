@@ -1,0 +1,143 @@
+[33mcommit 5b84985550789f7a986ba064c24c208dd7304c01[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m
+Merge: cbe56f4 079681f
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 15:08:53 2025 -0300
+
+    Merge branch 'fix/method-move-name'
+    
+    Restores missing changes from the fix branch to the develop branch.
+
+[33mcommit 079681f7ea8d11ecf87f4e7b3f8edf5253272986[m[33m ([m[1;31morigin/fix/method-move-name[m[33m, [m[1;32mfix/method-move-name[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 14:55:47 2025 -0300
+
+    fix: Correct the name of the search method from activity service
+
+[33mcommit cbe56f475c2e2eb1d7002e2393b99ef7edd1b007[m
+Merge: 9f3395d 45cfb96
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 14:45:56 2025 -0300
+
+    Merge pull request #7 from rug19/revert-6-fix/method-move-name
+    
+    Revert 6 fix/method move name
+
+[33mcommit 45cfb9683f7318df8b61f7d73c2177a631746eb9[m
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 14:45:25 2025 -0300
+
+    Revert "Fix/method move name"
+
+[33mcommit e40f6e9884d299d76cdbd048c184152e5f721ecf[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: ad6844e aa05ee5
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 14:45:17 2025 -0300
+
+    Merge pull request #6 from rug19/fix/method-move-name
+    
+    Fix/method move name
+
+[33mcommit aa05ee54aac2eefed9d9e76a0eff69bf506eaf06[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 14:43:55 2025 -0300
+
+    fix: Correct the name of the move activity method and activity repository and service
+
+[33mcommit 9f3395d47932d5df553e16ff11e114421276c754[m
+Merge: 4dc09a5 eff1108
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 14:32:12 2025 -0300
+
+    Merge pull request #5 from rug19/feat/controller
+    
+    Feat/controller
+
+[33mcommit eff1108d5d27f77a4ccd133fa8603d9cfdc41714[m[33m ([m[1;31morigin/feat/controller[m[33m, [m[1;32mfeat/controller[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 14:30:38 2025 -0300
+
+    feat: Implement ActivityController with move and search endpoints
+
+[33mcommit 551d33b39ca359643c3af4b4ddb2facab6db1e66[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 14:09:51 2025 -0300
+
+    feat: Implement the GroupController using CoreController
+
+[33mcommit 4dc09a582bc2df45f4d55d71c5a0aec0cd6498e2[m
+Merge: 993644d 840f96c
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 13:42:04 2025 -0300
+
+    Merge pull request #4 from rug19/core/controller
+    
+    feat: Implement generic CoreController for REST endpoints
+
+[33mcommit 840f96cd1ff349eaa221630a55c8369f72017bea[m[33m ([m[1;32mcore/controller[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 13:40:07 2025 -0300
+
+    feat: Implement generic CoreController for REST endpoints
+
+[33mcommit 993644d1702f213ee8a38d87c6cbc97ac7e2c938[m
+Merge: 9e9c7f9 211c8c6
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 13:09:14 2025 -0300
+
+    Merge pull request #3 from rug19/feat/service
+    
+    Feat/service
+
+[33mcommit 211c8c6b059678a07574121ff72eb699a630d15a[m[33m ([m[1;32mfeat/service[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 13:04:07 2025 -0300
+
+    feat: Implement ActivityService with logic for moving and listing activities
+
+[33mcommit 49f668808c051fcacb97ff417d3be62ace775a59[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 12:43:04 2025 -0300
+
+    feat: Implement the group service
+
+[33mcommit 9e9c7f9e01bef28c898f238c5e7ac49b752e2c79[m
+Merge: 901f40e ab7111a
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 12:28:14 2025 -0300
+
+    Merge pull request #2 from rug19/feat/core-service
+    
+    feat: Implement generic CoreService with CRUD methods
+
+[33mcommit ab7111ac7365b24a1468859e58e26d38a5081182[m[33m ([m[1;32mfeat/core-service[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 12:14:15 2025 -0300
+
+    feat: Implement generic CoreService with CRUD methods
+
+[33mcommit 901f40e58a33d94f5baae2cad2e2c7d59b82d833[m
+Merge: f44ff9c e1834d8
+Author: Ruan Gomes - Rug <67665127+rug19@users.noreply.github.com>
+Date:   Sat Oct 11 11:57:22 2025 -0300
+
+    Merge pull request #1 from rug19/feat/repositories
+    
+    feat: Implement group and activity repositories
+
+[33mcommit e1834d89deab37ff5dae67e1a7dbcf753a513b1c[m[33m ([m[1;32mfeat/repositories[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 11:56:15 2025 -0300
+
+    feat: Implement group and activity repositories
+
+[33mcommit f44ff9c7589f37d46016bc5dfc2f2c7cc1864245[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 11:10:48 2025 -0300
+
+    feat: Add data models for group and acrtivity
+
+[33mcommit ad6844e8de135fd6b01b9b92a515861d03501c62[m[33m ([m[1;32mmain[m[33m)[m
+Author: rug19 <rugcosta1234@gmail.com>
+Date:   Sat Oct 11 10:06:30 2025 -0300
+
+    feat: Setup initial project structure
