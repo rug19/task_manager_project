@@ -1,0 +1,18 @@
+# Ignorar configurações de IDE
+.idea/
+.vscode/
+
+# Ignorar dependências do frontend
+node_modules/
+dist/
+
+# Ignorar dependências do backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Ignorar arquivos de ambiente
+.env
+
+# Ignorar arquivos de build comuns
+build/
+out/
