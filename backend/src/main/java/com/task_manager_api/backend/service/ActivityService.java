@@ -31,6 +31,7 @@ public class ActivityService extends CoreService<Activity, UUID, ActivityReposit
         return repository.save(activity);
     }
 
+    // Method to find activities by description (case insensitive)
     public List<Activity> findByDescription(String description) {
         return repository.findByDescriptionContainingIgnoreCase(description);
     }
