@@ -32,7 +32,7 @@ public class ActivityService extends CoreService<Activity, UUID, ActivityReposit
     }
 
     public List<Activity> findByDescription(String description) {
-        return repository.findByDescriptionContainingIgoneCase(description);
+        return repository.findByDescriptionContainingIgnoreCase(description);
     }
 
 }

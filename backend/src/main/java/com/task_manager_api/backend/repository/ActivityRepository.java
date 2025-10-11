@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, UUID> {
-    List<Activity> findByDescriptionContainingIgoneCase(String description);
+    List<Activity> findByDescriptionContainingIgnoreCase(String description);
 }
