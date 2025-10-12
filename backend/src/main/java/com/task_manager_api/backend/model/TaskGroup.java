@@ -1,6 +1,7 @@
 package com.task_manager_api.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.task_manager_api.backend.core.Identifiable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class TaskGroup {
+public class TaskGroup implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

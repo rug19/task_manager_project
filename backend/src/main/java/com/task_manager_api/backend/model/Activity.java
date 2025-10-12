@@ -1,6 +1,7 @@
 package com.task_manager_api.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.task_manager_api.backend.core.Identifiable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Activity {
+public class Activity implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
