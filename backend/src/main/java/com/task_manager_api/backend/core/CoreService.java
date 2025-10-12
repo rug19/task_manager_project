@@ -28,5 +28,9 @@ public abstract class CoreService<T, ID, R extends JpaRepository<T, ID>> {
         repository.deleteById(id);
     }
 
+    public T update(ID id, T entity) {
+        return repository.save(entity);
+    }
+
 
 }
