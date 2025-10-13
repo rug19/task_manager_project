@@ -19,7 +19,7 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
     }
   }
 
-  function handleUpdate() {
+  function handleUpdateTitleGroup() {
     if (newTitle.trim()) {
       setEditing(false);
     }
@@ -27,6 +27,11 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
 
   function handleAddActivity(activity: string) {
     setActivities([...activities, activity]);
+  }
+
+  //Function to update a specific activity in array activity
+  function handleUpdateActivity(idx: number, newValue: string) {
+    setActivities((acts) => acts.map((act, i) => (i === idx ? newValue : act)));
   }
 
   if (onCreate && !title) {
@@ -59,7 +64,7 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
             type="text"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
+            onKeyDown={(e) => e.key === "Enter" && handleUpdateTitleGroup()}
             className="border-none text-white w-full focus:outline-none"
             autoFocus
             aria-label="Editar nome do grupo"
@@ -72,6 +77,7 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
         <ActivityCard
           activities={activities}
           onAddActivity={handleAddActivity}
+          onUpdateActivity={handleUpdateActivity}
         />
       </div>
     </div>
