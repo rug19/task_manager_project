@@ -9,11 +9,19 @@ type GroupsCard = {
 export default function GroupCard({ title, onCreate }: GroupsCard) {
   const [input, setInput] = useState("");
   const [activities, setActivities] = useState<string[]>([]);
+  const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(title || "");
 
   function handleCreate() {
     if (input.trim() && onCreate) {
       onCreate(input);
       setInput("");
+    }
+  }
+
+  function handleUpdate() {
+    if (newTitle.trim()) {
+      setEditing(false);
     }
   }
 
@@ -41,8 +49,24 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
   // Card already created
   return (
     <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
-      <h2 className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5">
-        {title}
+      <h2
+        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 "
+        onClick={() => setEditing(true)}
+      >
+        {/* Logic to update the title */}
+        {editing ? (
+          <input
+            type="text"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
+            className="border-none text-white w-full focus:outline-none"
+            autoFocus
+            aria-label="Editar nome do grupo"
+          />
+        ) : (
+          newTitle
+        )}
       </h2>
       <div className="p-3">
         <ActivityCard
