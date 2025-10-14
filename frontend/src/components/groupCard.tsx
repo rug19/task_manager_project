@@ -1,14 +1,25 @@
 import { useState } from "react";
 import ActivityCard from "./activityCard";
+import type { Activity } from "./activityCard";
 
 type GroupsCard = {
   title?: string;
+  activities?: Activity[];
+  onAddActivity?: (activity: Activity) => void;
+  onUpdateActivity?: (id: string, newValue: string) => void;
+  onUpdateTitle?: (newTitle: string) => void;
   onCreate?: (title: string) => void;
 };
 
-export default function GroupCard({ title, onCreate }: GroupsCard) {
+export default function GroupCard({
+  title,
+  onCreate,
+  activities = [],
+  onAddActivity,
+  onUpdateActivity,
+  onUpdateTitle,
+}: GroupsCard) {
   const [input, setInput] = useState("");
-  const [activities, setActivities] = useState<string[]>([]);
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title || "");
 
@@ -20,18 +31,10 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
   }
 
   function handleUpdateTitleGroup() {
-    if (newTitle.trim()) {
+    if (newTitle.trim() && onUpdateTitle) {
+      onUpdateTitle(newTitle);
       setEditing(false);
     }
-  }
-
-  function handleAddActivity(activity: string) {
-    setActivities([...activities, activity]);
-  }
-
-  //Function to update a specific activity in array activity
-  function handleUpdateActivity(idx: number, newValue: string) {
-    setActivities((acts) => acts.map((act, i) => (i === idx ? newValue : act)));
   }
 
   if (onCreate && !title) {
@@ -53,7 +56,7 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
 
   // Card already created
   return (
-    <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
+    <div className="bg-[#efedee] border border-[#b3b2b2] w-64 ">
       <h2
         className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 "
         onClick={() => setEditing(true)}
@@ -76,8 +79,8 @@ export default function GroupCard({ title, onCreate }: GroupsCard) {
       <div className="p-3">
         <ActivityCard
           activities={activities}
-          onAddActivity={handleAddActivity}
-          onUpdateActivity={handleUpdateActivity}
+          onAddActivity={onAddActivity}
+          onUpdateActivity={onUpdateActivity}
         />
       </div>
     </div>
