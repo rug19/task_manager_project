@@ -1,49 +1,131 @@
-import { memo } from "react";
-import { useGroupCard } from "../hooks/useGroupCard";
-import ActivityCard from "./activityCard";
-import type { Activity } from "./activityCard";
+import { useState } from "react";
+import { ActivityList } from "./ActivityList";
+import { groupApi, activityApi } from "../services/api";
+import type { Group } from "../types/types";
 
-type GroupsCard = {
-  title?: string;
-  activities?: Activity[];
-  onAddActivity?: (activity: Activity) => void;
-  onUpdateActivity?: (id: string, newValue: string) => void;
-  onUpdateTitle?: (newTitle: string) => void;
-  onCreate?: (title: string) => void;
+interface GroupCardProps {
+  group?: Group;
+  onCreate?: (title: string) => Promise<void>;
+  onCancel?: () => void;
+  onUpdate?: () => void;
+}
+
+export function GroupCard({
+  group,
+  onCreate,
+  onCancel,
+  onUpdate,
+}: GroupCardProps) {
+  const [activities, setActivities] = useState(group?.activities ?? []);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [title, setTitle] = useState(group?.title ?? "");
+  const [groupInput, setGroupInput] = useState("");
+
+  // ========== HANDLERS DE GRUPO ==========
+
+  const handleCreateGroup = async () => {
+    if (!groupInput.trim() || !onCreate) return;
+
+    try {
+      await onCreate(groupInput.trim());
+      setGroupInput("");
+    } catch (error) {
+      console.error("Erro ao criar grupo:", error);
+    }
+  };
+
+  const handleUpdateTitle = async () => {
+    if (!title.trim() || !group) return;
+
+    try {
+      await groupApi.update(group.id, title.trim());
+      setEditingTitle(false);
+      onUpdate?.();
+    } catch (error) {
+      console.error("Erro ao atualizar título:", error);
+      setTitle(group.title);
+    }
+  };
+
+  const handleGroupKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (group) {
+        handleUpdateTitle();
+      } else {
+        handleCreateGroup();
+      }
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (editingTitle) {
+        setTitle(group?.title ?? "");
+        setEditingTitle(false);
+      } else {
+        setGroupInput("");
+        onCancel?.();
+      }
+    }
+  };
+
+  // ========== HANDLERS DE ATIVIDADES ==========
+
+  const handleAddActivity = async (description: string) => {
+    if (!group) return;
+    const activity = await activityApi.create(group.id, description);
+    setActivities((prev) => [...prev, activity]);
+  };
+
+
+
+  const handleUpdateActivity = async (
+  activityId: string,
+  description: string
+) => {
+  if (!group) return;
+
+  try {
+    await activityApi.update(group.id, activityId, description); 
+    setActivities((prev) =>
+      prev.map((act) =>
+        act.id === activityId ? { ...act, description } : act
+      )
+    );
+  } catch (error) {
+    console.error("Erro ao atualizar atividade:", error);
+  }
 };
 
-const GroupCard = memo(function GroupCard({
-  title,
-  onCreate,
-  activities = [],
-  onAddActivity,
-  onUpdateActivity,
-  onUpdateTitle,
-}: GroupsCard) {
-  const {
-    input,
-    editing,
-    newTitle,
-    setInput,
-    setNewTitle,
-    handleCreate,
-    handleUpdateTitle,
-    startEditing,
-    cancelEditing,
-    handleKeyDown,
-  } = useGroupCard(title);
+  const handleDeleteActivity = async (activityId: string) => {
+    if (!group || !confirm("Deseja realmente excluir esta atividade?")) return;
+
+    await activityApi.delete(group.id, activityId);
+    setActivities((prev) => prev.filter((act) => act.id !== activityId));
+  };
+
+  const handleToggleActivity = async (activityId: string) => {
+    if (!group) return;
+
+    const updated = await activityApi.toggle(group.id, activityId);
+    setActivities((prev) =>
+      prev.map((act) => (act.id === activityId ? updated : act))
+    );
+  };
+
+  // ========== RENDER ==========
 
   // Modo criação de grupo
-  if (onCreate && !title) {
+  if (!group) {
     return (
       <div className="bg-[#320df1] h-12 flex justify-center text-[18px] font-bold w-64">
         <input
           type="text"
+          value={groupInput}
+          onChange={(e) => setGroupInput(e.target.value)}
+          onKeyDown={handleGroupKeyDown}
+          onBlur={onCancel}
           placeholder="Nome do Grupo"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e, () => handleCreate(onCreate))}
-          className="border-none text-white ml-4 focus:border-none hover:border-none focus:outline-none pl-6 bg-transparent"
+          className="border-none text-white ml-4 focus:outline-none pl-6 bg-transparent placeholder-blue-200"
           autoFocus
           maxLength={50}
         />
@@ -54,40 +136,40 @@ const GroupCard = memo(function GroupCard({
   // Grupo existente
   return (
     <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
-      <h2
-        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 cursor-pointer "
-        onClick={startEditing}
-        onDoubleClick={cancelEditing}
+      {/* Header do Grupo */}
+      <div
+        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 cursor-pointer"
+        onClick={() => !editingTitle && setEditingTitle(true)}
         title="Clique para editar o nome do grupo"
       >
-        {editing ? (
+        {editingTitle ? (
           <input
             type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) =>
-              handleKeyDown(e, () => handleUpdateTitle(onUpdateTitle))
-            }
-            onBlur={() => handleUpdateTitle(onUpdateTitle)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={handleGroupKeyDown}
+            onBlur={handleUpdateTitle}
             className="border-none text-white w-full focus:outline-none bg-transparent"
             autoFocus
             maxLength={50}
             aria-label="Editar nome do grupo"
           />
         ) : (
-          <span className="truncate">{newTitle}</span>
+          <span className="truncate">{title}</span>
         )}
-      </h2>
+      </div>
 
+      {/* Lista de Atividades */}
       <div className="p-3">
-        <ActivityCard
+        <ActivityList
+          groupId={group.id}
           activities={activities}
-          onAddActivity={onAddActivity}
-          onUpdateActivity={onUpdateActivity}
+          onAdd={handleAddActivity}
+          onUpdate={handleUpdateActivity}
+          onDelete={handleDeleteActivity}
+          onToggle={handleToggleActivity}
         />
       </div>
     </div>
   );
-});
-
-export default GroupCard;
+}
