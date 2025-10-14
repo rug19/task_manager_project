@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { memo } from "react"; // ← Import do memo
+
 import Modal from "./modal";
 import IconButton from "./button";
+import { useActivityCard } from "../hooks/useActivityCard";
 
 export type Activity = {
   id: string;
@@ -13,39 +15,22 @@ type ActivityCardProps = {
   onUpdateActivity?: (id: string, newValue: string) => void;
 };
 
-export default function ActivityCard({
+const ActivityCard = memo(function ActivityCard({
   activities,
   onAddActivity,
   onUpdateActivity,
 }: ActivityCardProps) {
-  const [creatingActivity, setCreatingActivity] = useState(false);
-  const [activityInput, setActivityInput] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  function handleAddActivity() {
-    if (activityInput.trim() && onAddActivity) {
-      onAddActivity({ id: crypto.randomUUID(), description: activityInput });
-      setActivityInput("");
-      setCreatingActivity(false);
-    }
-  }
-
-  function handleEditActivity(id: string) {
-    const activity = activities.find((a) => a.id === id);
-    
-    if (activity) {
-      setEditingId(id);
-      setActivityInput(activity.description);
-    }
-  }
-
-  function handleUpdateActivity() {
-    if (activityInput.trim() && editingId !== null && onUpdateActivity) {
-      onUpdateActivity(editingId, activityInput);
-      setEditingId(null);
-      setActivityInput("");
-    }
-  }
+  const {
+    creatingActivityModal,
+    activityInput,
+    editingActivity,
+    setCreatingActivityModal,
+    setActivityInput,
+    setEditingActivity,
+    handleAddActivity,
+    handleEditActivity,
+    handleUpdateActivity,
+  } = useActivityCard();
 
   return (
     <div>
@@ -53,15 +38,15 @@ export default function ActivityCard({
         <div
           key={activity.id}
           className="bg-white border  p-2 mb-2 text-black font-semibold cursor-pointer"
-          onClick={() => handleEditActivity(activity.id)}
+          onClick={() => handleEditActivity(activity.id, activities)}
         >
           {activity.description}
         </div>
       ))}
       {/* Modal to create an activity */}
       <Modal
-        isOpen={creatingActivity}
-        onClose={() => setCreatingActivity(false)}
+        isOpen={creatingActivityModal}
+        onClose={() => setCreatingActivityModal(false)}
       >
         <textarea
           placeholder="Descrição da atividade"
@@ -74,12 +59,15 @@ export default function ActivityCard({
           <IconButton
             label="Salvar"
             className="bg-blue-600 text-white px-4 py-2 rounded  "
-            onClick={handleAddActivity}
+            onClick={() => handleAddActivity(onAddActivity)}
           />
         </div>
       </Modal>
       {/* Modal to update an activity */}
-      <Modal isOpen={editingId !== null} onClose={() => setEditingId(null)}>
+      <Modal
+        isOpen={editingActivity !== null}
+        onClose={() => setEditingActivity(null)}
+      >
         <textarea
           placeholder="Editar descrição da atividade"
           value={activityInput}
@@ -89,9 +77,9 @@ export default function ActivityCard({
         />
         <div className="flex justify-center gap-2">
           <IconButton
-            label="Salvar edição"
+            label="Salvar"
             className="bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={handleUpdateActivity}
+            onClick={() => handleUpdateActivity(onUpdateActivity)}
           />
         </div>
       </Modal>
@@ -100,8 +88,10 @@ export default function ActivityCard({
         onlyIcon={false}
         label="Novo Card +"
         className="font-semibold text-blue-700 text-[18px]"
-        onClick={() => setCreatingActivity(true)}
+        onClick={() => setCreatingActivityModal(true)}
       />
     </div>
   );
-}
+});
+
+export default ActivityCard;

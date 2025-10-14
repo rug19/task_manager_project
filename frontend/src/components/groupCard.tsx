@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { memo } from "react";
+import { useGroupCard } from "../hooks/useGroupCard";
 import ActivityCard from "./activityCard";
 import type { Activity } from "./activityCard";
 
@@ -11,7 +12,7 @@ type GroupsCard = {
   onCreate?: (title: string) => void;
 };
 
-export default function GroupCard({
+const GroupCard = memo(function GroupCard({
   title,
   onCreate,
   activities = [],
@@ -19,26 +20,21 @@ export default function GroupCard({
   onUpdateActivity,
   onUpdateTitle,
 }: GroupsCard) {
-  const [input, setInput] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(title || "");
+  const {
+    input,
+    editing,
+    newTitle,
+    setInput,
+    setNewTitle,
+    handleCreate,
+    handleUpdateTitle,
+    startEditing,
+    cancelEditing,
+    handleKeyDown,
+  } = useGroupCard(title);
 
-  function handleCreate() {
-    if (input.trim() && onCreate) {
-      onCreate(input);
-      setInput("");
-    }
-  }
-
-  function handleUpdateTitleGroup() {
-    if (newTitle.trim() && onUpdateTitle) {
-      onUpdateTitle(newTitle);
-      setEditing(false);
-    }
-  }
-
+  // Modo criação de grupo
   if (onCreate && !title) {
-    // Creating the card
     return (
       <div className="bg-[#320df1] h-12 flex justify-center text-[18px] font-bold w-64">
         <input
@@ -46,36 +42,43 @@ export default function GroupCard({
           placeholder="Nome do Grupo"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-          className="border-none text-white ml-4 focus:border-none hover:border-none focus:outline-none pl-6"
+          onKeyDown={(e) => handleKeyDown(e, () => handleCreate(onCreate))}
+          className="border-none text-white ml-4 focus:border-none hover:border-none focus:outline-none pl-6 bg-transparent"
           autoFocus
+          maxLength={50}
         />
       </div>
     );
   }
 
-  // Card already created
+  // Grupo existente
   return (
-    <div className="bg-[#efedee] border border-[#b3b2b2] w-64 ">
+    <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
       <h2
-        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 "
-        onClick={() => setEditing(true)}
+        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 cursor-pointer "
+        onClick={startEditing}
+        onDoubleClick={cancelEditing}
+        title="Clique para editar o nome do grupo"
       >
-        {/* Logic to update the title */}
         {editing ? (
           <input
             type="text"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleUpdateTitleGroup()}
-            className="border-none text-white w-full focus:outline-none"
+            onKeyDown={(e) =>
+              handleKeyDown(e, () => handleUpdateTitle(onUpdateTitle))
+            }
+            onBlur={() => handleUpdateTitle(onUpdateTitle)}
+            className="border-none text-white w-full focus:outline-none bg-transparent"
             autoFocus
+            maxLength={50}
             aria-label="Editar nome do grupo"
           />
         ) : (
-          newTitle
+          <span className="truncate">{newTitle}</span>
         )}
       </h2>
+
       <div className="p-3">
         <ActivityCard
           activities={activities}
@@ -85,4 +88,6 @@ export default function GroupCard({
       </div>
     </div>
   );
-}
+});
+
+export default GroupCard;
