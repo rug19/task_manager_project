@@ -3,6 +3,7 @@ import Header from "../components/header";
 import GroupCard from "../components/groupCard";
 import IconButton from "../components/button";
 import type { Activity } from "../components/activityCard";
+import { createGroup } from "../service/groupService";
 
 type Group = {
   id: string;
@@ -14,9 +15,18 @@ export default function Dashboard() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [creating, setCreating] = useState(false);
 
-  function addGroup(title: string) {
-    setGroups([...groups, { id: crypto.randomUUID(), title, activities: [] }]);
-    setCreating(false);
+  async function addGroup(title: string) {
+    try {
+      const newGroup = await createGroup(title);
+      setGroups([
+        ...groups,
+        { ...newGroup, activities: newGroup.activities ?? [] },
+      ]);
+      setCreating(false);
+    } catch (er) {
+      console.log("Erro ao criar grupo", er);
+      alert("Erro ao criar grupo!");
+    }
   }
 
   function addActivityToGroup(groupId: string, activity: Activity) {
