@@ -2,23 +2,75 @@ import { useState } from "react";
 import Header from "../components/header";
 import GroupCard from "../components/groupCard";
 import IconButton from "../components/button";
+import type { Activity } from "../components/activityCard";
 
+type Group = {
+  id: string;
+  title: string;
+  activities: Activity[];
+};
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState<string[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [creating, setCreating] = useState(false);
 
   function addGroup(title: string) {
-    setGroups([...groups, title]);
+    setGroups([...groups, { id: crypto.randomUUID(), title, activities: [] }]);
     setCreating(false);
+  }
+
+  function addActivityToGroup(groupId: string, activity: Activity) {
+    setGroups((groups) =>
+      groups.map((group) =>
+        group.id === groupId
+          ? { ...group, activities: [...group.activities, activity] }
+          : group
+      )
+    );
+  }
+
+  function updateActivityInGroup(
+    groupId: string,
+    activityId: string,
+    newValue: string
+  ) {
+    setGroups((groups) =>
+      groups.map((group) =>
+        group.id === groupId
+          ? {
+              ...group,
+              activities: group.activities.map((act) =>
+                act.id === activityId ? { ...act, description: newValue } : act
+              ),
+            }
+          : group
+      )
+    );
+  }
+
+  function updateGroupTitle(groupId: string, newTitle: string) {
+    setGroups((groups) =>
+      groups.map((group) =>
+        group.id === groupId ? { ...group, title: newTitle } : group
+      )
+    );
   }
 
   return (
     <div>
       <Header />
       <div className="flex gap-10 p-8">
-        {groups.map((title, idx) => (
-          <GroupCard key={idx} title={title} />
+        {groups.map((group) => (
+          <GroupCard
+            key={group.id}
+            title={group.title}
+            activities={group.activities}
+            onAddActivity={(activity) => addActivityToGroup(group.id, activity)}
+            onUpdateActivity={(id, newValue) =>
+              updateActivityInGroup(group.id, id, newValue)
+            }
+            onUpdateTitle={(newTitle) => updateGroupTitle(group.id, newTitle)}
+          />
         ))}
         {creating ? (
           <GroupCard onCreate={addGroup} />

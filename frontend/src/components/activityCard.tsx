@@ -2,10 +2,15 @@ import { useState } from "react";
 import Modal from "./modal";
 import IconButton from "./button";
 
+export type Activity = {
+  id: string;
+  description: string;
+};
+
 type ActivityCardProps = {
-  activities: string[];
-  onAddActivity: (activity: string) => void;
-  onUpdateActivity: (idx: number, newValue: string) => void;
+  activities: Activity[];
+  onAddActivity?: (activity: Activity) => void;
+  onUpdateActivity?: (id: string, newValue: string) => void;
 };
 
 export default function ActivityCard({
@@ -15,38 +20,42 @@ export default function ActivityCard({
 }: ActivityCardProps) {
   const [creatingActivity, setCreatingActivity] = useState(false);
   const [activityInput, setActivityInput] = useState("");
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   function handleAddActivity() {
-    if (activityInput.trim()) {
-      onAddActivity(activityInput);
+    if (activityInput.trim() && onAddActivity) {
+      onAddActivity({ id: crypto.randomUUID(), description: activityInput });
       setActivityInput("");
       setCreatingActivity(false);
     }
   }
 
-  function handleEditActivity(idx: number) {
-    setEditingIdx(idx);
-    setActivityInput(activities[idx]);
+  function handleEditActivity(id: string) {
+    const activity = activities.find((a) => a.id === id);
+    
+    if (activity) {
+      setEditingId(id);
+      setActivityInput(activity.description);
+    }
   }
 
   function handleUpdateActivity() {
-    if (activityInput.trim() && editingIdx !== null && onUpdateActivity) {
-      onUpdateActivity(editingIdx, activityInput);
-      setEditingIdx(null);
+    if (activityInput.trim() && editingId !== null && onUpdateActivity) {
+      onUpdateActivity(editingId, activityInput);
+      setEditingId(null);
       setActivityInput("");
     }
   }
 
   return (
     <div>
-      {activities.map((activity, idx) => (
+      {activities.map((activity) => (
         <div
-          key={idx}
+          key={activity.id}
           className="bg-white border  p-2 mb-2 text-black font-semibold cursor-pointer"
-          onClick={() => handleEditActivity(idx)}
+          onClick={() => handleEditActivity(activity.id)}
         >
-          {activity}
+          {activity.description}
         </div>
       ))}
       {/* Modal to create an activity */}
@@ -69,8 +78,8 @@ export default function ActivityCard({
           />
         </div>
       </Modal>
-      {/* Modal to edit an activity */}
-      <Modal isOpen={editingIdx !== null} onClose={() => setEditingIdx(null)}>
+      {/* Modal to update an activity */}
+      <Modal isOpen={editingId !== null} onClose={() => setEditingId(null)}>
         <textarea
           placeholder="Editar descrição da atividade"
           value={activityInput}
@@ -80,7 +89,7 @@ export default function ActivityCard({
         />
         <div className="flex justify-center gap-2">
           <IconButton
-            label="Salvar"
+            label="Salvar edição"
             className="bg-blue-600 text-white px-4 py-2 rounded"
             onClick={handleUpdateActivity}
           />
