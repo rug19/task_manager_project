@@ -17,7 +17,7 @@ public class TaskGroup implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String name;
+    private String title;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "taskGroup", cascade = CascadeType.ALL, orphanRemoval = true)
