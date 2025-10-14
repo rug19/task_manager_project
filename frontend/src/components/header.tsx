@@ -7,7 +7,7 @@ function test() {
 
 export default function Header() {
   return (
-    <header className="bg-[#5f55c6] h-12 flex justify-between items-center p-2">
+    <header className="bg-[#5f55c6] h-12 flex justify-between items-center p-2 w-[100%">
       <div className="p-3">
         <div className="relative">
           <input
