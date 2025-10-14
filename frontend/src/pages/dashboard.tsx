@@ -1,70 +1,18 @@
-import { useState } from "react";
 import Header from "../components/header";
 import GroupCard from "../components/groupCard";
 import IconButton from "../components/button";
-import type { Activity } from "../components/activityCard";
-import { createGroup } from "../service/groupService";
-
-type Group = {
-  id: string;
-  title: string;
-  activities: Activity[];
-};
+import { useDashboardState } from "../hooks/useDashboardState";
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [creating, setCreating] = useState(false);
-
-  async function addGroup(title: string) {
-    try {
-      const newGroup = await createGroup(title);
-      setGroups([
-        ...groups,
-        { ...newGroup, activities: newGroup.activities ?? [] },
-      ]);
-      setCreating(false);
-    } catch (er) {
-      console.log("Erro ao criar grupo", er);
-      alert("Erro ao criar grupo!");
-    }
-  }
-
-  function addActivityToGroup(groupId: string, activity: Activity) {
-    setGroups((groups) =>
-      groups.map((group) =>
-        group.id === groupId
-          ? { ...group, activities: [...group.activities, activity] }
-          : group
-      )
-    );
-  }
-
-  function updateActivityInGroup(
-    groupId: string,
-    activityId: string,
-    newValue: string
-  ) {
-    setGroups((groups) =>
-      groups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              activities: group.activities.map((act) =>
-                act.id === activityId ? { ...act, description: newValue } : act
-              ),
-            }
-          : group
-      )
-    );
-  }
-
-  function updateGroupTitle(groupId: string, newTitle: string) {
-    setGroups((groups) =>
-      groups.map((group) =>
-        group.id === groupId ? { ...group, title: newTitle } : group
-      )
-    );
-  }
+  const {
+    groups,
+    creating,
+    setCreating,
+    addGroup,
+    addActivityToGroup,
+    updateActivityInGroup,
+    updateGroupTitle,
+  } = useDashboardState();
 
   return (
     <div>
