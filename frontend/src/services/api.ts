@@ -65,10 +65,13 @@ export const activityApi = {
   update: async (
     groupId: string,
     activityId: string,
-    description: string
+    description: string,
+    deliveryDate?: string, completed?: boolean
   ): Promise<Activity> => {
     const payload = {
       description,
+      deliveryDate: deliveryDate || null,
+      completed,
       taskGroup: {
         id: groupId,
       },
@@ -81,13 +84,7 @@ export const activityApi = {
     return response.data;
   },
 
-  // PATCH /groups/:groupId/activities/:id/toggle - Toggle completed
-  toggle: async (groupId: string, activityId: string): Promise<Activity> => {
-    const response = await api.patch<Activity>(
-      `/groups/${groupId}/activities/${activityId}/toggle`
-    );
-    return response.data;
-  },
+  
 
   // DELETE /groups/:groupId/activities/:id - Deleta atividade
   delete: async (groupId: string, activityId: string): Promise<void> => {
