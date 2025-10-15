@@ -19,7 +19,7 @@ export function GroupCard({
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(group?.title ?? "");
   const [groupInput, setGroupInput] = useState("");
-
+  
   // ========== HANDLERS DE GRUPO ==========
 
   const handleCreateGroup = async () => {
@@ -77,12 +77,13 @@ export function GroupCard({
 
   const handleUpdateActivity = async (
     activityId: string,
-    description: string
+    description: string,
+    deliveryDate?: string
   ) => {
     if (!group) return;
 
     try {
-      await activityApi.update(group.id, activityId, description);
+      await activityApi.update(group.id, activityId, description, deliveryDate);
       onUpdate?.();
     } catch (error) {
       console.error("Erro ao atualizar atividade:", error);
@@ -99,11 +100,22 @@ export function GroupCard({
   const handleToggleActivity = async (activityId: string) => {
     if (!group) return;
 
-    await activityApi.toggle(group.id, activityId);
-    onUpdate?.();
-  };
+    try {
+      const activity = group.activities.find((a) => a.id === activityId);
+      if (!activity) return;
 
- 
+      await activityApi.update(
+        group.id,
+        activityId,
+        activity.description,
+        activity.deliveryDate,
+        !activity.completed
+      );
+      onUpdate?.();
+    } catch (error) {
+      console.log("Erro ao alterar atividade: ", error);
+    }
+  };
 
   // Modo criação de grupo
   if (!group) {

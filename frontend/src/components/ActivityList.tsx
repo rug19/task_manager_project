@@ -12,7 +12,11 @@ interface ActivityListProps {
   groupId: string;
   activities: Activity[];
   onAdd: (description: string) => Promise<void>;
-  onUpdate: (activityId: string, description: string) => Promise<void>;
+  onUpdate: (
+    activityId: string,
+    description: string,
+    deliveryDate?: string
+  ) => Promise<void>;
   onDelete: (activityId: string) => Promise<void>;
   onToggle: (activityId: string) => Promise<void>;
 }
@@ -70,6 +74,7 @@ export function ActivityList({
             id={activity.id}
             description={activity.description}
             completed={activity.completed}
+            deliveryDate={activity.deliveryDate}
             onUpdate={onUpdate}
             onDelete={onDelete}
             onToggle={onToggle}

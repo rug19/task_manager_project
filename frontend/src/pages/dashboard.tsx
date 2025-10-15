@@ -5,7 +5,7 @@ import type { Activity, Group } from "../types/types";
 import { GroupCard } from "../components/groupCard";
 import {
   DndContext,
-   type DragEndEvent,
+  type DragEndEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -19,8 +19,7 @@ export default function Dashboard() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
-    const [activeActivity, setActiveActivity] = useState<Activity | null>(null);
-
+  const [activeActivity, setActiveActivity] = useState<Activity | null>(null);
 
   // Sensor para drag
   const sensors = useSensors(
@@ -58,7 +57,7 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ Quando começa a arrastar
+  //  Quando começa a arrastar
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const activityId = active.id as string;
@@ -71,7 +70,7 @@ export default function Dashboard() {
     setActiveActivity(activity || null);
   };
 
-  // ✅ Quando termina de arrastar
+  //  Quando termina de arrastar
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -120,9 +119,7 @@ export default function Dashboard() {
     const activity = sourceGroup.activities?.find((a) => a.id === activityId);
     if (!activity) return;
 
-    console.log("✅ Movendo:", activity.description);
-
-    // ✅ Atualiza estado local IMEDIATAMENTE
+    // Atualiza estado local IMEDIATAMENTE
     setGroups((prev) =>
       prev.map((g) => {
         // Remove do grupo de origem
@@ -143,7 +140,7 @@ export default function Dashboard() {
       })
     );
 
-    // ✅ Chama API em background
+    // Chama API em background
     activityApi
       .update(targetGroup.id, activityId, activity.description)
       .catch((error) => {
@@ -152,7 +149,7 @@ export default function Dashboard() {
       });
   };
 
-  // ✅ Quando cancela o drag
+  // Quando cancela o drag
   const handleDragCancel = () => {
     setActiveActivity(null);
   };
@@ -164,7 +161,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
 
   return (
     <DndContext
@@ -184,7 +180,7 @@ export default function Dashboard() {
             {/* Grupos existentes */}
             {groups.map((group) => (
               <div key={group.id} className="flex-shrink-0">
-                <GroupCard  group={group} onUpdate={loadGroups} />
+                <GroupCard group={group} onUpdate={loadGroups} />
               </div>
             ))}
 
