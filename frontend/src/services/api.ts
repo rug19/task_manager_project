@@ -1,18 +1,16 @@
 import axios from "axios";
 import type { Activity, Group } from "../types/types";
 
-// ========== CONFIGURAÇÃO DO AXIOS ==========
+//Axios config
 const api = axios.create({
-  baseURL: "http://localhost:8080/api/", 
+  baseURL: "http://localhost:8080/api/",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 segundos
+  timeout: 10000, 
 });
 
-
-
-// ========== FUNÇÕES DA API ==========
+// Endpoints: Group
 
 export const groupApi = {
   // GET /groups - Lista todos os grupos com atividades
@@ -39,6 +37,8 @@ export const groupApi = {
   },
 };
 
+//Endpoints: Activivity
+
 export const activityApi = {
   // GET /groups/:groupId/activities - Lista atividades de um grupo
   getAll: async (groupId: string): Promise<Activity[]> => {
@@ -48,8 +48,6 @@ export const activityApi = {
 
   // POST /groups/:groupId/activities - Cria atividade
   create: async (groupId: string, description: string): Promise<Activity> => {
-   
-
     const payload = {
       description,
       completed: false,
@@ -58,25 +56,23 @@ export const activityApi = {
       },
     };
 
-    const response = await api.post<Activity>("/activities", payload); 
+    const response = await api.post<Activity>("/activities", payload);
 
     return response.data;
   },
-
 
   // PUT /groups/:groupId/activities/:id - Atualiza descrição
   update: async (
     groupId: string,
     activityId: string,
-    description: string,
+    description: string
   ): Promise<Activity> => {
-
     const payload = {
       description,
       taskGroup: {
         id: groupId,
-      }
-    }
+      },
+    };
 
     const response = await api.put<Activity>(
       `/activities/${activityId}`,
@@ -99,7 +95,6 @@ export const activityApi = {
   },
 };
 
-// ========== EXPORTAÇÃO DEFAULT ==========
 export default {
   groups: groupApi,
   activities: activityApi,

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import Modal from "./Modal";
-
+import Modal from "./modal";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 interface ActivityItemProps {
   id: string;
   description: string;
@@ -24,6 +25,21 @@ export function ActivityItem({
 }: ActivityItemProps) {
   const [editValue, setEditValue] = useState(description);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const handleUpdate = async () => {
     if (!editValue.trim()) return;
@@ -60,17 +76,26 @@ export function ActivityItem({
 
   return (
     <>
-      <div className="bg-white p-2 rounded border border-gray-200 hover:shadow-sm transition-shadow group">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <input
-              type="checkbox"
-              checked={completed}
-              onChange={() => onToggle(id)}
-              className="cursor-pointer"
-              title="Marcar como concluída"
-              aria-label="Marcar atividade como concluída"
-            />
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`bg-white space-y-2  p-2 rounded border border-gray-200 group ${
+          isDragging ? "shadow-lg z-50" : "hover:shadow-sm"
+        } transition-all`}
+      >
+        <div
+          className="flex items-center justify-between gap-2 "
+          
+        >
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            ⋮⋮
+          </div>
+          <div className="flex flex-col  gap-2 flex-1">
             <span
               className={`flex-1 cursor-pointer ${
                 completed ? "line-through text-gray-400" : ""
@@ -79,8 +104,15 @@ export function ActivityItem({
             >
               {description}
             </span>
+            {/* <input
+              type="checkbox"
+              checked={completed}
+              onChange={() => onToggle(id)}
+              className="cursor-pointer"
+              title="Marcar como concluída"
+              aria-label="Marcar atividade como concluída"
+            /> */}
           </div>
-          
         </div>
       </div>
 
