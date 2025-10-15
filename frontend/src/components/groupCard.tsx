@@ -1,25 +1,26 @@
 import { useState } from "react";
 import { ActivityList } from "./ActivityList";
-import { groupApi, activityApi } from "../services/api";
+import { useGroupStore } from "../store/useGroupStore";
+
 import type { Group } from "../types/types";
 
 interface GroupCardProps {
   group?: Group;
   onCreate?: (title: string) => Promise<void>;
   onCancel?: () => void;
-  onUpdate?: () => void;
 }
 
-export function GroupCard({
-  group,
-  onCreate,
-  onCancel,
-  onUpdate,
-}: GroupCardProps) {
+export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(group?.title ?? "");
   const [groupInput, setGroupInput] = useState("");
-  
+
+  const updateGroup = useGroupStore((state) => state.updateGroup);
+  const createActivity = useGroupStore((state) => state.createActivity);
+  const updateActivity = useGroupStore((state) => state.updateActivity);
+  const deleteActivity = useGroupStore((state) => state.deleteActivity);
+  const toggleActivity = useGroupStore((state) => state.toggleActivity);
+
   // ========== HANDLERS DE GRUPO ==========
 
   const handleCreateGroup = async () => {
@@ -37,9 +38,8 @@ export function GroupCard({
     if (!title.trim() || !group) return;
 
     try {
-      await groupApi.update(group.id, title.trim());
+      await updateGroup(group.id, title.trim()); 
       setEditingTitle(false);
-      onUpdate?.();
     } catch (error) {
       console.error("Erro ao atualizar título:", error);
       setTitle(group.title);
@@ -71,8 +71,12 @@ export function GroupCard({
 
   const handleAddActivity = async (description: string) => {
     if (!group) return;
-    await activityApi.create(group.id, description);
-    onUpdate?.();
+
+    try {
+      await createActivity(group.id, description); 
+    } catch (error) {
+      console.error("Erro ao criar atividade:", error);
+    }
   };
 
   const handleUpdateActivity = async (
@@ -83,8 +87,7 @@ export function GroupCard({
     if (!group) return;
 
     try {
-      await activityApi.update(group.id, activityId, description, deliveryDate);
-      onUpdate?.();
+      await updateActivity(group.id, activityId, description, deliveryDate);
     } catch (error) {
       console.error("Erro ao atualizar atividade:", error);
     }
@@ -93,27 +96,20 @@ export function GroupCard({
   const handleDeleteActivity = async (activityId: string) => {
     if (!group || !confirm("Deseja realmente excluir esta atividade?")) return;
 
-    await activityApi.delete(group.id, activityId);
-    onUpdate?.();
+    try {
+      await deleteActivity(group.id, activityId); // 
+    } catch (error) {
+      console.error("Erro ao deletar atividade:", error);
+    }
   };
 
   const handleToggleActivity = async (activityId: string) => {
     if (!group) return;
 
     try {
-      const activity = group.activities.find((a) => a.id === activityId);
-      if (!activity) return;
-
-      await activityApi.update(
-        group.id,
-        activityId,
-        activity.description,
-        activity.deliveryDate,
-        !activity.completed
-      );
-      onUpdate?.();
+      await toggleActivity(group.id, activityId);
     } catch (error) {
-      console.log("Erro ao alterar atividade: ", error);
+      console.error("Erro ao alternar atividade:", error);
     }
   };
 
