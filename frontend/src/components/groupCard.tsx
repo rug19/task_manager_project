@@ -16,7 +16,6 @@ export function GroupCard({
   onCancel,
   onUpdate,
 }: GroupCardProps) {
-  const [activities, setActivities] = useState(group?.activities ?? []);
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(group?.title ?? "");
   const [groupInput, setGroupInput] = useState("");
@@ -72,47 +71,39 @@ export function GroupCard({
 
   const handleAddActivity = async (description: string) => {
     if (!group) return;
-    const activity = await activityApi.create(group.id, description);
-    setActivities((prev) => [...prev, activity]);
+    await activityApi.create(group.id, description);
+    onUpdate?.();
   };
 
-
-
   const handleUpdateActivity = async (
-  activityId: string,
-  description: string
-) => {
-  if (!group) return;
+    activityId: string,
+    description: string
+  ) => {
+    if (!group) return;
 
-  try {
-    await activityApi.update(group.id, activityId, description); 
-    setActivities((prev) =>
-      prev.map((act) =>
-        act.id === activityId ? { ...act, description } : act
-      )
-    );
-  } catch (error) {
-    console.error("Erro ao atualizar atividade:", error);
-  }
-};
+    try {
+      await activityApi.update(group.id, activityId, description);
+      onUpdate?.();
+    } catch (error) {
+      console.error("Erro ao atualizar atividade:", error);
+    }
+  };
 
   const handleDeleteActivity = async (activityId: string) => {
     if (!group || !confirm("Deseja realmente excluir esta atividade?")) return;
 
     await activityApi.delete(group.id, activityId);
-    setActivities((prev) => prev.filter((act) => act.id !== activityId));
+    onUpdate?.();
   };
 
   const handleToggleActivity = async (activityId: string) => {
     if (!group) return;
 
-    const updated = await activityApi.toggle(group.id, activityId);
-    setActivities((prev) =>
-      prev.map((act) => (act.id === activityId ? updated : act))
-    );
+    await activityApi.toggle(group.id, activityId);
+    onUpdate?.();
   };
 
-  // ========== RENDER ==========
+ 
 
   // Modo criação de grupo
   if (!group) {
@@ -163,7 +154,7 @@ export function GroupCard({
       <div className="p-3">
         <ActivityList
           groupId={group.id}
-          activities={activities}
+          activities={group.activities || []}
           onAdd={handleAddActivity}
           onUpdate={handleUpdateActivity}
           onDelete={handleDeleteActivity}

@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { ActivityItem } from "./ActivityItem";
 import type { Activity } from "../types/types";
-import Modal from "./Modal";
+import Modal from "./modal";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface ActivityListProps {
   groupId: string;
@@ -13,6 +18,7 @@ interface ActivityListProps {
 }
 
 export function ActivityList({
+  groupId,
   activities,
   onAdd,
   onUpdate,
@@ -21,6 +27,11 @@ export function ActivityList({
 }: ActivityListProps) {
   const [newActivity, setNewActivity] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Drop zone para aceitar cards de outros grupos
+  const { setNodeRef } = useDroppable({
+    id: groupId,
+  });
 
   const handleAdd = async () => {
     if (!newActivity.trim()) return;
@@ -47,19 +58,24 @@ export function ActivityList({
   };
 
   return (
-    <div className="space-y-2">
-      {/* Lista de atividades */}
-      {activities.map((activity) => (
-        <ActivityItem
-          key={activity.id}
-          id={activity.id}
-          description={activity.description}
-          completed={activity.completed}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onToggle={onToggle}
-        />
-      ))}
+    <div ref={setNodeRef} className="space-y-2">
+      <SortableContext
+        items={activities.map((a) => a.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {/* Lista de atividades */}
+        {activities.map((activity) => (
+          <ActivityItem
+            key={activity.id}
+            id={activity.id}
+            description={activity.description}
+            completed={activity.completed}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onToggle={onToggle}
+          />
+        ))}
+      </SortableContext>
 
       {/* Botão para abrir modal */}
       <button
@@ -98,4 +114,3 @@ export function ActivityList({
     </div>
   );
 }
-
