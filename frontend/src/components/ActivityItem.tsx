@@ -55,7 +55,7 @@ export function ActivityItem({
       setIsModalOpen(false);
     } catch (error) {
       console.error("Erro ao atualizar:", error);
-      setEditValue(description); // Reverte em caso de erro
+      setEditValue(description); 
     }
   };
 

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../components/header";
-import { activityApi, groupApi } from "../services/api";
-import type { Activity, Group } from "../types/types";
+import type { Activity } from "../types/types";
 import { GroupCard } from "../components/groupCard";
 import {
   DndContext,
@@ -14,11 +13,12 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useGroupStore } from "../store/useGroupStore";
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState<Group[]>([]);
+  const { groups, isLoading, fetchGroups, moveActivityToGroup } = useGroupStore();
+  const createGroup = useGroupStore((state) => state.createGroup);
   const [creating, setCreating] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeActivity, setActiveActivity] = useState<Activity | null>(null);
 
   // Sensor para drag
@@ -32,25 +32,12 @@ export default function Dashboard() {
 
   // Carregar grupos na inicialização
   useEffect(() => {
-    loadGroups();
-  }, []);
-
-  const loadGroups = async () => {
-    try {
-      setLoading(true);
-      const data = await groupApi.getAll();
-      setGroups(data);
-    } catch (error) {
-      console.error("Erro ao carregar grupos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchGroups();
+  }, [fetchGroups]);
 
   const handleCreateGroup = async (title: string) => {
     try {
-      const newGroup = await groupApi.create(title);
-      setGroups((prev) => [...prev, newGroup]);
+      await createGroup(title);
       setCreating(false);
     } catch (error) {
       console.error("Erro ao criar grupo:", error);
@@ -58,11 +45,8 @@ export default function Dashboard() {
   };
 
   //  Quando começa a arrastar
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const activityId = active.id as string;
-
-    // Encontra a atividade que está sendo arrastada
+   const handleDragStart = (event: DragStartEvent) => {
+    const activityId = event.active.id as string;
     const activity = groups
       .flatMap((g) => g.activities || [])
       .find((a) => a.id === activityId);
@@ -73,31 +57,29 @@ export default function Dashboard() {
   //  Quando termina de arrastar
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-
-    setActiveActivity(null); // Limpa o overlay
+    setActiveActivity(null);
 
     if (!over) return;
 
     const activityId = active.id as string;
     const targetId = over.id as string;
 
+    // Encontra grupo de origem
     const sourceGroup = groups.find((g) =>
       g.activities?.some((a) => a.id === activityId)
     );
-
     if (!sourceGroup) return;
 
+    // Encontra grupo de destino
     let targetGroup = groups.find((g) =>
       g.activities?.some((a) => a.id === targetId)
     );
-
     if (!targetGroup) {
       targetGroup = groups.find((g) => g.id === targetId);
     }
-
     if (!targetGroup) return;
 
-    // CASO 1: Reordenação no mesmo grupo
+    //Reordenar no mesmo grupo (só UI, não persiste)
     if (sourceGroup.id === targetGroup.id) {
       const activities = sourceGroup.activities || [];
       const oldIndex = activities.findIndex((a) => a.id === activityId);
@@ -105,48 +87,19 @@ export default function Dashboard() {
 
       if (oldIndex !== newIndex) {
         const reordered = arrayMove(activities, oldIndex, newIndex);
-
-        setGroups((prev) =>
-          prev.map((g) =>
+        
+        // Atualiza estado local (não chama backend)
+        useGroupStore.setState((state) => ({
+          groups: state.groups.map((g) =>
             g.id === sourceGroup.id ? { ...g, activities: reordered } : g
-          )
-        );
+          ),
+        }));
       }
       return;
     }
 
-    // CASO 2: Mover para outro grupo
-    const activity = sourceGroup.activities?.find((a) => a.id === activityId);
-    if (!activity) return;
-
-    // Atualiza estado local IMEDIATAMENTE
-    setGroups((prev) =>
-      prev.map((g) => {
-        // Remove do grupo de origem
-        if (g.id === sourceGroup.id) {
-          return {
-            ...g,
-            activities: g.activities?.filter((a) => a.id !== activityId) || [],
-          };
-        }
-        // Adiciona no grupo de destino
-        if (g.id === targetGroup.id) {
-          return {
-            ...g,
-            activities: [...(g.activities || []), activity],
-          };
-        }
-        return g;
-      })
-    );
-
-    // Chama API em background
-    activityApi
-      .update(targetGroup.id, activityId, activity.description)
-      .catch((error) => {
-        console.error("Erro ao mover atividade:", error);
-        loadGroups();
-      });
+    //Mover para outro grupo 
+    await moveActivityToGroup(sourceGroup.id, targetGroup.id, activityId);
   };
 
   // Quando cancela o drag
@@ -154,7 +107,7 @@ export default function Dashboard() {
     setActiveActivity(null);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-gray-600 text-lg">Carregando...</div>
@@ -180,7 +133,7 @@ export default function Dashboard() {
             {/* Grupos existentes */}
             {groups.map((group) => (
               <div key={group.id} className="flex-shrink-0">
-                <GroupCard group={group} onUpdate={loadGroups} />
+                <GroupCard group={group} />
               </div>
             ))}
 
