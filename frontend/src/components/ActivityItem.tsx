@@ -139,13 +139,13 @@ export function ActivityItem({
           isDragging ? "shadow-lg z-50" : "hover:shadow-sm"
         } transition-all`}
       >
-        <div className="flex items-center justify-between gap-2 ">
+        <div className="flex items-start justify-between gap-2 ">
           <div
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-lg"
             onClick={(e) => e.stopPropagation()}
-          >
+          > 
             ⋮⋮
           </div>
           <div className="flex flex-col  gap-2 flex-1">

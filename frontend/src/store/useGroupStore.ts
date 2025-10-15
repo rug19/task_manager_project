@@ -263,13 +263,7 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
 
     // Sincroniza com backend (background)
     try {
-      await activityApi.update(
-        targetGroupId,
-        activityId,
-        activity.description,
-        activity.deliveryDate,
-        activity.completed
-      );
+      await activityApi.move(activityId, targetGroupId);
       console.log("Atividade movida com sucesso");
     } catch (error) {
       console.error(" Erro ao mover atividade:", error);

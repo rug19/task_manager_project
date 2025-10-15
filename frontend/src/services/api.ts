@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Activity, Group } from "../types/types";
 
+
 //Axios config
 const api = axios.create({
   baseURL: "http://localhost:8080/api/",
@@ -90,6 +91,15 @@ export const activityApi = {
   delete: async (groupId: string, activityId: string): Promise<void> => {
     await api.delete(`/groups/${groupId}/activities/${activityId}`);
   },
+
+  move: async (activityId: string, newGroupId: string): Promise<Activity> => {
+    const response = await api.put<Activity>(
+      `/activities/${activityId}/move/${newGroupId}`
+    );
+
+    return response.data
+  }
+  
 };
 
 export default {
