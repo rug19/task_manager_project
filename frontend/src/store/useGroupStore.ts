@@ -6,6 +6,7 @@ interface GroupStore {
   // ========== ESTADO ==========
   groups: Group[];
   isLoading: boolean;
+  searchTerm: string;
 
   // ========== AÇÕES DE GRUPO ==========
   fetchGroups: () => Promise<void>;
@@ -31,12 +32,20 @@ interface GroupStore {
     targetGroupId: string,
     activityId: string
   ) => Promise<void>;
+
+  setSearchTerm: (term: string) => void; // ✅ ADICIONAR
 }
 
 export const useGroupStore = create<GroupStore>((set, get) => ({
   // ========== ESTADO INICIAL ==========
   groups: [],
   isLoading: false,
+  searchTerm: "",
+
+  // ========== BUSCA (SIMPLES) ==========
+  setSearchTerm: (term: string) => {
+    set({ searchTerm: term });
+  },
 
   // ========== BUSCAR GRUPOS ==========
   fetchGroups: async () => {

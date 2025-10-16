@@ -16,10 +16,12 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { useGroupStore } from "../store/useGroupStore";
 
 export default function Dashboard() {
-  const { groups, isLoading, fetchGroups, moveActivityToGroup } = useGroupStore();
+  const { groups, isLoading, fetchGroups, moveActivityToGroup } =
+    useGroupStore();
   const createGroup = useGroupStore((state) => state.createGroup);
   const [creating, setCreating] = useState(false);
   const [activeActivity, setActiveActivity] = useState<Activity | null>(null);
+  const searchTerm = useGroupStore((state) => state.searchTerm);
 
   // Sensor para drag
   const sensors = useSensors(
@@ -35,6 +37,13 @@ export default function Dashboard() {
     fetchGroups();
   }, [fetchGroups]);
 
+  const filteredGroups = groups.map((group) => ({
+    ...group,
+    activities: group.activities?.filter((activity) =>
+      activity.description.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+  }));
+
   const handleCreateGroup = async (title: string) => {
     try {
       await createGroup(title);
@@ -45,7 +54,7 @@ export default function Dashboard() {
   };
 
   //  Quando começa a arrastar
-   const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = (event: DragStartEvent) => {
     const activityId = event.active.id as string;
     const activity = groups
       .flatMap((g) => g.activities || [])
@@ -87,7 +96,7 @@ export default function Dashboard() {
 
       if (oldIndex !== newIndex) {
         const reordered = arrayMove(activities, oldIndex, newIndex);
-        
+
         // Atualiza estado local (não chama backend)
         useGroupStore.setState((state) => ({
           groups: state.groups.map((g) =>
@@ -98,7 +107,7 @@ export default function Dashboard() {
       return;
     }
 
-    //Mover para outro grupo 
+    //Mover para outro grupo
     await moveActivityToGroup(sourceGroup.id, targetGroup.id, activityId);
   };
 
@@ -131,7 +140,7 @@ export default function Dashboard() {
  items-start"
           >
             {/* Grupos existentes */}
-            {groups.map((group) => (
+            {filteredGroups.map((group) => (
               <div key={group.id} className="flex-shrink-0">
                 <GroupCard group={group} />
               </div>

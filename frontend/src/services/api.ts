@@ -1,14 +1,13 @@
 import axios from "axios";
 import type { Activity, Group } from "../types/types";
 
-
 //Axios config
 const api = axios.create({
   baseURL: "http://localhost:8080/api/",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, 
+  timeout: 10000,
 });
 
 // Endpoints: Group
@@ -67,7 +66,8 @@ export const activityApi = {
     groupId: string,
     activityId: string,
     description: string,
-    deliveryDate?: string, completed?: boolean
+    deliveryDate?: string,
+    completed?: boolean
   ): Promise<Activity> => {
     const payload = {
       description,
@@ -85,21 +85,26 @@ export const activityApi = {
     return response.data;
   },
 
-  
-
   // DELETE /groups/:groupId/activities/:id - Deleta atividade
   delete: async (groupId: string, activityId: string): Promise<void> => {
     await api.delete(`/groups/${groupId}/activities/${activityId}`);
   },
 
+  //MOVE: /activities/:activityId/move/newGroupId - Move atividade para outro grupo
   move: async (activityId: string, newGroupId: string): Promise<Activity> => {
     const response = await api.put<Activity>(
       `/activities/${activityId}/move/${newGroupId}`
     );
 
-    return response.data
-  }
-  
+    return response.data;
+  },
+
+  search: async (description: string): Promise<Activity[]> => {
+    const response = await api.get<Activity[]>("/activities/search", {
+      params: { description },
+    });
+    return response.data;
+  },
 };
 
 export default {

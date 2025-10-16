@@ -1,9 +1,13 @@
 import { MdNotifications, MdSearch } from "react-icons/md";
 import IconButton from "./button";
 import { useDelayedCount } from "../hooks/useDelayedCount";
+import { useGroupStore } from "../store/useGroupStore";
 
 export default function Header() {
   const delayedCount = useDelayedCount();
+
+  const setSearchTerm = useGroupStore((state) => state.setSearchTerm);
+
   return (
     <header className="bg-[#5f55c6] h-12 flex justify-between items-center p-2 w-[100%">
       <div className="p-3">
@@ -12,6 +16,7 @@ export default function Header() {
             type="text"
             placeholder="Localizar Atividade"
             className="border-none rounded text-white p-1 bg-[#b8b4e6] font-semibold font-sans pl-3 focus:border-none focus:outline-none focus:text-white"
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <IconButton
             icon={<MdSearch size={25} />}
@@ -26,7 +31,8 @@ export default function Header() {
         {delayedCount > 0 && (
           <div className="bg-white top-8 absolute w-37 mr-27 p-2 border border-[#b3b2b2] rounded shadow-lg">
             <p className="text-xs font-semibold text-gray-800">
-              Existe(m) {delayedCount} atividade{delayedCount > 1 ? '(s)' : ''} com atraso na entrega
+              Existe(m) {delayedCount} atividade{delayedCount > 1 ? "(s)" : ""}{" "}
+              com atraso na entrega
             </p>
           </div>
         )}
