@@ -1,40 +1,13 @@
 import { create } from "zustand";
 import { groupApi, activityApi } from "../services/api";
-import type { Group } from "../types/types";
-
-interface GroupStore {
-  // ========== ESTADO ==========
-  groups: Group[];
-  isLoading: boolean;
-  searchTerm: string;
-
-  // ========== AÇÕES DE GRUPO ==========
-  fetchGroups: () => Promise<void>;
-  createGroup: (title: string) => Promise<void>;
-  updateGroup: (id: string, title: string) => Promise<void>;
-  deleteGroup: (id: string) => Promise<void>;
-
-  // ========== AÇÕES DE ATIVIDADE ==========
-  createActivity: (groupId: string, description: string) => Promise<void>;
-  updateActivity: (
-    groupId: string,
-    activityId: string,
-    description: string,
-    deliveryDate?: string
-  ) => Promise<void>;
-  deleteActivity: (groupId: string, activityId: string) => Promise<void>;
-  toggleActivity: (groupId: string, activityId: string) => Promise<void>;
-
-  //========== DRAG AND DROP ============
-
-  moveActivityToGroup: (
-    sourceGroupId: string,
-    targetGroupId: string,
-    activityId: string
-  ) => Promise<void>;
-
-  setSearchTerm: (term: string) => void;
-}
+import type { GroupStore } from "../types/groupStore.types";
+import {
+  addActivityToGroup,
+  deleteActivityInGroup,
+  moveActivityToGroupHelper,
+  toggleActivityInGroup,
+  updateActivityInGroup,
+} from "./helpers/activityHelpers";
 
 export const useGroupStore = create<GroupStore>((set, get) => ({
   // ========== ESTADO INICIAL ==========
@@ -73,11 +46,11 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
   },
 
   // ========== ATUALIZAR GRUPO ==========
-  updateGroup: async (id: string, title: string) => {
+  updateGroup: async (groupId: string, title: string) => {
     try {
-      const updated = await groupApi.update(id, title);
+      const updated = await groupApi.update(groupId, title);
       set((state) => ({
-        groups: state.groups.map((g) => (g.id === id ? updated : g)),
+        groups: state.groups.map((g) => (g.id === groupId ? updated : g)),
       }));
     } catch (error) {
       console.error("Erro ao atualizar grupo:", error);
@@ -105,16 +78,13 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
 
       const activityWithCompleted = {
         ...newActivity,
-        completed: newActivity.completed ?? false, // ← Padrão: false
+        completed: newActivity.completed ?? false,
       };
       set((state) => ({
-        groups: state.groups.map((g) =>
-          g.id === groupId
-            ? {
-                ...g,
-                activities: [...(g.activities || []), activityWithCompleted],
-              }
-            : g
+        groups: addActivityToGroup(
+          state.groups,
+          groupId,
+          activityWithCompleted
         ),
       }));
     } catch (error) {
@@ -138,16 +108,7 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
         deliveryDate
       );
       set((state) => ({
-        groups: state.groups.map((g) =>
-          g.id === groupId
-            ? {
-                ...g,
-                activities: g.activities.map((a) =>
-                  a.id === activityId ? updated : a
-                ),
-              }
-            : g
-        ),
+        groups: updateActivityInGroup(state.groups, groupId, updated),
       }));
     } catch (error) {
       console.error("Erro ao atualizar atividade:", error);
@@ -160,30 +121,15 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
     try {
       // 1. Remove da UI imediatamente
       set((state) => ({
-        groups: state.groups.map((g) =>
-          g.id === groupId
-            ? {
-                ...g,
-                activities:
-                  g.activities?.filter((a) => a.id !== activityId) || [],
-              }
-            : g
-        ),
+        groups: deleteActivityInGroup(state.groups, groupId, activityId),
       }));
-
-      // 2. Chama API
       await activityApi.delete(activityId);
-
-      console.log(" Atividade deletada");
     } catch (error) {
       console.error(" Erro ao deletar:", error);
-
-      // 3. Apenas mostra erro (não reverte)
-      alert("Erro ao deletar. Recarregue a página.");
     }
   },
 
-  // ========== TOGGLE ATIVIDADE (OTIMISTA) ==========
+  // ========== TOGGLE ATIVIDADE ==========
   toggleActivity: async (groupId: string, activityId: string) => {
     // 1. Busca atividade atual
     const group = get().groups.find((g) => g.id === groupId);
@@ -195,24 +141,17 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
 
     //  Garante que completed existe
     const currentCompleted = activity.completed ?? false;
+    const newCompleted = !currentCompleted;
 
-    // 2.  ATUALIZA ESTADO IMEDIATAMENTE (UI muda na hora!)
     set((state) => ({
-      groups: state.groups.map((g) =>
-        g.id === groupId
-          ? {
-              ...g,
-              activities: g.activities.map((a) =>
-                a.id === activityId
-                  ? { ...a, completed: !currentCompleted } // ← Usa valor garantido
-                  : a
-              ),
-            }
-          : g
+      groups: toggleActivityInGroup(
+        state.groups,
+        groupId,
+        activityId,
+        newCompleted
       ),
     }));
 
-    // 3. Sincroniza com backend (background)
     try {
       await activityApi.update(
         groupId,
@@ -221,23 +160,16 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
         activity.deliveryDate,
         !currentCompleted // ← Usa valor garantido
       );
-      console.log("Atividade sincronizada com backend");
     } catch (error) {
       console.error("Erro ao alternar atividade:", error);
 
       // 4. Reverte se falhar
       set((state) => ({
-        groups: state.groups.map((g) =>
-          g.id === groupId
-            ? {
-                ...g,
-                activities: g.activities.map((a) =>
-                  a.id === activityId
-                    ? { ...a, completed: currentCompleted } // ← Reverte para valor original
-                    : a
-                ),
-              }
-            : g
+        groups: toggleActivityInGroup(
+          state.groups,
+          groupId,
+          activityId,
+          currentCompleted
         ),
       }));
     }
@@ -259,29 +191,17 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
 
     //Atualiza estado IMEDIATAMENTE (Optimistic Update)
     set((state) => ({
-      groups: state.groups.map((g) => {
-        if (g.id === sourceGroupId) {
-          // Remove do grupo de origem
-          return {
-            ...g,
-            activities: g.activities?.filter((a) => a.id !== activityId) || [],
-          };
-        }
-        if (g.id === targetGroupId) {
-          // Adiciona ao grupo de destino
-          return {
-            ...g,
-            activities: [...(g.activities || []), activity],
-          };
-        }
-        return g;
-      }),
+      groups: moveActivityToGroupHelper(
+        state.groups,
+        sourceGroupId,
+        targetGroupId,
+        activity
+      ),
     }));
 
     // Sincroniza com backend (background)
     try {
       await activityApi.move(activityId, targetGroupId);
-      console.log("Atividade movida com sucesso");
     } catch (error) {
       console.error(" Erro ao mover atividade:", error);
       // Reverte buscando tudo do backend

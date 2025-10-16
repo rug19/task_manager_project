@@ -82,7 +82,6 @@ export function ActivityList({
         ))}
       </SortableContext>
 
-      {/* Botão para abrir modal */}
       <button
         onClick={() => setIsModalOpen(true)}
         className="w-full p-2 text-start font-semibold text-[18px] text-[#320df1] cursor-pointer"

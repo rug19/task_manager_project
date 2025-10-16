@@ -3,6 +3,7 @@ import Modal from "./modal";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { MdAccessTime, MdClose, MdDragIndicator } from "react-icons/md";
+import { formatDate, isOverdue } from "../utils/dateHelpers";
 
 interface ActivityItemProps {
   id: string;
@@ -67,7 +68,6 @@ export function ActivityItem({
     ) {
       try {
         await onDelete(id);
-        console.log(" Atividade deletada");
       } catch (error) {
         console.log(error);
         alert("Erro ao deletar atividade. Tente novamente.");
@@ -82,68 +82,15 @@ export function ActivityItem({
     }
     if (e.key === "Escape") {
       e.preventDefault();
-      handleCloseModal();
+      handleModal(false);
     }
   };
 
-  const handleCloseModal = () => {
+  const handleModal = (open: boolean) => {
     setEditValue(description);
-    setDateValue(deliveryDate || ""); // ← ADICIONE
+    setDateValue(deliveryDate || "");
     setShowDateInput(!!deliveryDate);
-    setIsModalOpen(false);
-  };
-
-  const handleOpenModal = () => {
-    setEditValue(description);
-    setDateValue(deliveryDate || ""); // ← ADICIONE
-    setShowDateInput(!!deliveryDate);
-    setIsModalOpen(true);
-  };
-
-  //Formata data para exibição
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-
-    const [year, month, day] = dateString.split("-");
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-
-    const dayFormatted = date.getDate();
-    const yearFormatted = date.getFullYear();
-
-    const months = [
-      "jan",
-      "fev",
-      "mar",
-      "abr",
-      "mai",
-      "jun",
-      "jul",
-      "ago",
-      "set",
-      "out",
-      "nov",
-      "dez",
-    ];
-
-    const monthFormatted = months[date.getMonth()];
-
-    return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
-  };
-
-  //  Verifica se está atrasado
-  const isOverdue = () => {
-    if (!deliveryDate || completed) return false;
-
-    const [year, month, day] = deliveryDate.split("-");
-    const deliveryDateObj = new Date(
-      Number(year),
-      Number(month) - 1,
-      Number(day)
-    );
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Zera horário para comparar apenas a data
-
-    return deliveryDateObj < today;
+    setIsModalOpen(open);
   };
 
   return (
@@ -162,7 +109,7 @@ export function ActivityItem({
             className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <MdDragIndicator size={20}/>
+            <MdDragIndicator size={20} />
           </div>
           <div className="flex flex-col   gap-2 flex-1">
             <div className="flex justify-between items-start">
@@ -170,7 +117,7 @@ export function ActivityItem({
                 className={`flex-1 cursor-pointer ${
                   completed ? "line-through text-gray-400" : ""
                 }`}
-                onClick={handleOpenModal}
+                onClick={() => handleModal(true)}
               >
                 {description}
               </span>
@@ -187,11 +134,7 @@ export function ActivityItem({
             {deliveryDate && (
               <div
                 className={`flex items-center gap-2 text-xs p-1  w-[60%] py-1 rounded ${
-                  completed
-                    ? "bg-green-100" // Verde se concluído
-                    : isOverdue()
-                    ? "bg-red-100" // Vermelho se atrasado
-                    : "" // Cinza normal
+                  completed ? "bg-green-100" : isOverdue(deliveryDate, completed) ? "bg-red-100" : ""
                 }`}
               >
                 <input
@@ -212,7 +155,7 @@ export function ActivityItem({
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+      <Modal isOpen={isModalOpen} onClose={() => handleModal(false)}>
         <div className="space-y-4 mt-2">
           <div>
             <label

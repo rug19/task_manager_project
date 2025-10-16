@@ -25,9 +25,9 @@ export const groupApi = {
     return response.data;
   },
 
-  // PUT /groups/:id - Atualiza título do grupo
+  // PUT /groups/:id - Atualiza grupo
   update: async (id: string, title: string): Promise<Group> => {
-    const response = await api.put<Group>(`/groups/${id}`, { title });
+    const response = await api.patch<Group>(`/groups/${id}/title`, { title });
     return response.data;
   },
 

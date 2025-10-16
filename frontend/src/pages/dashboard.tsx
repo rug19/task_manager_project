@@ -12,7 +12,6 @@ import {
   DragOverlay,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { useGroupStore } from "../store/useGroupStore";
 
 export default function Dashboard() {
@@ -88,22 +87,7 @@ export default function Dashboard() {
     }
     if (!targetGroup) return;
 
-    //Reordenar no mesmo grupo (só UI, não persiste)
     if (sourceGroup.id === targetGroup.id) {
-      const activities = sourceGroup.activities || [];
-      const oldIndex = activities.findIndex((a) => a.id === activityId);
-      const newIndex = activities.findIndex((a) => a.id === targetId);
-
-      if (oldIndex !== newIndex) {
-        const reordered = arrayMove(activities, oldIndex, newIndex);
-
-        // Atualiza estado local (não chama backend)
-        useGroupStore.setState((state) => ({
-          groups: state.groups.map((g) =>
-            g.id === sourceGroup.id ? { ...g, activities: reordered } : g
-          ),
-        }));
-      }
       return;
     }
 

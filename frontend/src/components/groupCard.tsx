@@ -87,7 +87,6 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
 
   const handleAddActivity = async (description: string) => {
     if (!group) return;
-
     try {
       await createActivity(group.id, description);
     } catch (error) {
@@ -121,7 +120,6 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
 
   const handleToggleActivity = async (activityId: string) => {
     if (!group) return;
-
     try {
       await toggleActivity(group.id, activityId);
     } catch (error) {
@@ -174,6 +172,10 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
         )}
         <button
           onClick={handleDeleteGroup}
+          onMouseDown={(e) => {
+            // Impede que o input perca o foco (onBlur) ao clicar no botão de deletar
+            e.preventDefault();
+          }}
           className="text-red-500  p-1 rounded transition-colors pr-3 cursor-pointer"
           title="Deletar atividade"
         >
