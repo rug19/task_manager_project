@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "./modal";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MdAccessTime } from "react-icons/md";
+import { MdAccessTime, MdClose, MdDragIndicator } from "react-icons/md";
 
 interface ActivityItemProps {
   id: string;
@@ -55,7 +55,23 @@ export function ActivityItem({
       setIsModalOpen(false);
     } catch (error) {
       console.error("Erro ao atualizar:", error);
-      setEditValue(description); 
+      setEditValue(description);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja deletar a atividade "${description}"?`
+      )
+    ) {
+      try {
+        await onDelete(id);
+        console.log(" Atividade deletada");
+      } catch (error) {
+        console.log(error);
+        alert("Erro ao deletar atividade. Tente novamente.");
+      }
     }
   };
 
@@ -139,28 +155,38 @@ export function ActivityItem({
           isDragging ? "shadow-lg z-50" : "hover:shadow-sm"
         } transition-all`}
       >
-        <div className="flex items-start justify-between gap-2 ">
+        <div className="flex items-center justify-start gap-1 ">
           <div
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-lg"
             onClick={(e) => e.stopPropagation()}
-          > 
-            ⋮⋮
+          >
+            <MdDragIndicator size={20}/>
           </div>
-          <div className="flex flex-col  gap-2 flex-1">
-            <span
-              className={`flex-1 cursor-pointer ${
-                completed ? "line-through text-gray-400" : ""
-              }`}
-              onClick={handleOpenModal}
-            >
-              {description}
-            </span>
+          <div className="flex flex-col   gap-2 flex-1">
+            <div className="flex justify-between items-start">
+              <span
+                className={`flex-1 cursor-pointer ${
+                  completed ? "line-through text-gray-400" : ""
+                }`}
+                onClick={handleOpenModal}
+              >
+                {description}
+              </span>
+              <button
+                onClick={handleDelete}
+                className="text-red-500  p-1 rounded transition-colors"
+                title="Deletar atividade"
+              >
+                <MdClose size={18} />
+              </button>
+            </div>
+
             {/* Exibe data de entrega */}
             {deliveryDate && (
               <div
-                className={`flex items-center gap-2 text-xs p-2 w-[65%] py-1 rounded ${
+                className={`flex items-center gap-2 text-xs p-1  w-[60%] py-1 rounded ${
                   completed
                     ? "bg-green-100" // Verde se concluído
                     : isOverdue()

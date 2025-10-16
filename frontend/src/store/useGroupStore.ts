@@ -33,7 +33,7 @@ interface GroupStore {
     activityId: string
   ) => Promise<void>;
 
-  setSearchTerm: (term: string) => void; // ✅ ADICIONAR
+  setSearchTerm: (term: string) => void;
 }
 
 export const useGroupStore = create<GroupStore>((set, get) => ({
@@ -86,12 +86,12 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
   },
 
   // ========== DELETAR GRUPO ==========
-  deleteGroup: async (id: string) => {
+  deleteGroup: async (groupId: string) => {
     try {
-      await groupApi.delete(id);
       set((state) => ({
-        groups: state.groups.filter((g) => g.id !== id),
+        groups: state.groups.filter((g) => g.id !== groupId),
       }));
+      await groupApi.delete(groupId);
     } catch (error) {
       console.error("Erro ao deletar grupo:", error);
       throw error;
@@ -158,20 +158,28 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
   // ========== DELETAR ATIVIDADE ==========
   deleteActivity: async (groupId: string, activityId: string) => {
     try {
-      await activityApi.delete(groupId, activityId);
+      // 1. Remove da UI imediatamente
       set((state) => ({
         groups: state.groups.map((g) =>
           g.id === groupId
             ? {
                 ...g,
-                activities: g.activities.filter((a) => a.id !== activityId),
+                activities:
+                  g.activities?.filter((a) => a.id !== activityId) || [],
               }
             : g
         ),
       }));
+
+      // 2. Chama API
+      await activityApi.delete(activityId);
+
+      console.log(" Atividade deletada");
     } catch (error) {
-      console.error("Erro ao deletar atividade:", error);
-      throw error;
+      console.error(" Erro ao deletar:", error);
+
+      // 3. Apenas mostra erro (não reverte)
+      alert("Erro ao deletar. Recarregue a página.");
     }
   },
 
@@ -181,14 +189,14 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
     const group = get().groups.find((g) => g.id === groupId);
     const activity = group?.activities.find((a) => a.id === activityId);
     if (!activity) {
-      console.error("❌ Atividade não encontrada:", activityId);
+      console.error(" Atividade não encontrada:", activityId);
       return;
     }
 
-    // ✅ Garante que completed existe
+    //  Garante que completed existe
     const currentCompleted = activity.completed ?? false;
 
-    // 2. ✅ ATUALIZA ESTADO IMEDIATAMENTE (UI muda na hora!)
+    // 2.  ATUALIZA ESTADO IMEDIATAMENTE (UI muda na hora!)
     set((state) => ({
       groups: state.groups.map((g) =>
         g.id === groupId

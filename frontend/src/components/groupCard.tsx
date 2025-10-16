@@ -3,6 +3,7 @@ import { ActivityList } from "./ActivityList";
 import { useGroupStore } from "../store/useGroupStore";
 
 import type { Group } from "../types/types";
+import { MdDelete } from "react-icons/md";
 
 interface GroupCardProps {
   group?: Group;
@@ -16,6 +17,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
   const [groupInput, setGroupInput] = useState("");
 
   const updateGroup = useGroupStore((state) => state.updateGroup);
+  const deleteGroup = useGroupStore((state) => state.deleteGroup);
   const createActivity = useGroupStore((state) => state.createActivity);
   const updateActivity = useGroupStore((state) => state.updateActivity);
   const deleteActivity = useGroupStore((state) => state.deleteActivity);
@@ -38,11 +40,25 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
     if (!title.trim() || !group) return;
 
     try {
-      await updateGroup(group.id, title.trim()); 
+      await updateGroup(group.id, title.trim());
       setEditingTitle(false);
     } catch (error) {
       console.error("Erro ao atualizar título:", error);
       setTitle(group.title);
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!group) return; // <-- Adicione esta linha!
+
+    if (window.confirm(`Tem certeza que deseja deletar esse Grupo"?`)) {
+      try {
+        await deleteGroup(group.id);
+        console.log(" Grupo deletado");
+      } catch (error) {
+        console.log(error);
+        alert("Erro ao deletar atividade. Tente novamente.");
+      }
     }
   };
 
@@ -73,7 +89,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
     if (!group) return;
 
     try {
-      await createActivity(group.id, description); 
+      await createActivity(group.id, description);
     } catch (error) {
       console.error("Erro ao criar atividade:", error);
     }
@@ -97,7 +113,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
     if (!group || !confirm("Deseja realmente excluir esta atividade?")) return;
 
     try {
-      await deleteActivity(group.id, activityId); // 
+      await deleteActivity(group.id, activityId); //
     } catch (error) {
       console.error("Erro ao deletar atividade:", error);
     }
@@ -116,7 +132,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
   // Modo criação de grupo
   if (!group) {
     return (
-      <div className="bg-[#320df1] h-12 flex justify-center text-[18px] font-bold w-64">
+      <div className="bg-[#320df1] h-12 flex justify-between items-center text-[18px] font-bold w-64">
         <input
           type="text"
           value={groupInput}
@@ -137,7 +153,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
     <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
       {/* Header do Grupo */}
       <div
-        className="bg-[#320df1] text-white h-12 flex items-center text-[18px] font-bold pl-5 cursor-pointer"
+        className="bg-[#320df1] text-white h-12  items-center text-[18px] font-bold pl-5 cursor-pointer flex justify-between"
         onClick={() => !editingTitle && setEditingTitle(true)}
         title="Clique para editar o nome do grupo"
       >
@@ -156,6 +172,13 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
         ) : (
           <span className="truncate">{title}</span>
         )}
+        <button
+          onClick={handleDeleteGroup}
+          className="text-red-500  p-1 rounded transition-colors pr-3 cursor-pointer"
+          title="Deletar atividade"
+        >
+          <MdDelete size={20} />
+        </button>
       </div>
 
       {/* Lista de Atividades */}

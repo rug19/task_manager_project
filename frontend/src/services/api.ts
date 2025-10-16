@@ -32,8 +32,8 @@ export const groupApi = {
   },
 
   // DELETE /groups/:id - Deleta grupo
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/groups/${id}`);
+  delete: async (groupId: string): Promise<void> => {
+    await api.delete(`/groups/${groupId}`);
   },
 };
 
@@ -85,9 +85,9 @@ export const activityApi = {
     return response.data;
   },
 
-  // DELETE /groups/:groupId/activities/:id - Deleta atividade
-  delete: async (groupId: string, activityId: string): Promise<void> => {
-    await api.delete(`/groups/${groupId}/activities/${activityId}`);
+  // DELETE /activities/:id - Deleta atividade
+  delete: async (activityId: string): Promise<void> => {
+    await api.delete(`/activities/${activityId}`);
   },
 
   //MOVE: /activities/:activityId/move/newGroupId - Move atividade para outro grupo
