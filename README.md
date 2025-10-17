@@ -9,7 +9,7 @@ Os usuários podem criar, editar, mover e excluir tarefas, bem como gerenciar gr
 
 ## 📸 Prévia do sistema
 
-![Tela Kanban]()
+![Tela Kanban](/frontend/src/assets/)
 
 ## 🚀 Tecnologias utilizadas
 
@@ -133,10 +133,10 @@ Método	Endpoint	Descrição
 - DELETE	/groups/{id}	Exclui um grupo
 - PATCH	/groups/{id}/title	Atualiza apenas o título do grupo
 
-##🧑‍💻 Autor
+## 🧑‍💻 Autor
 
 Ruan Gomes
-📧 [coloca teu e-mail ou LinkedIn aqui]
-💼 Projeto desenvolvido para estudo e prática de integração entre Spring Boot + React.
+- 📧 https://www.linkedin.com/in/ruan-gomes-a0b446187/
+
 
 
