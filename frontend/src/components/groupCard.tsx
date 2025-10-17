@@ -2,182 +2,62 @@ import { useState } from "react";
 import { ActivityList } from "./ActivityList";
 import { useGroupStore } from "../store/useGroupStore";
 
-import type { Group } from "../types/types";
 import { MdDelete } from "react-icons/md";
+import type { Group } from "../types/types";
 
 interface GroupCardProps {
-  group?: Group;
-  onCreate?: (title: string) => Promise<void>;
-  onCancel?: () => void;
+  group: Group;
 }
 
-export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [title, setTitle] = useState(group?.title ?? "");
-  const [groupInput, setGroupInput] = useState("");
-
+export function GroupCard({ group }: GroupCardProps) {
+ 
   const updateGroup = useGroupStore((state) => state.updateGroup);
   const deleteGroup = useGroupStore((state) => state.deleteGroup);
-  const createActivity = useGroupStore((state) => state.createActivity);
-  const updateActivity = useGroupStore((state) => state.updateActivity);
-  const deleteActivity = useGroupStore((state) => state.deleteActivity);
-  const toggleActivity = useGroupStore((state) => state.toggleActivity);
 
-  // ========== HANDLERS DE GRUPO ==========
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [title, setTitle] = useState(group?.title ?? "");
 
-  const handleCreateGroup = async () => {
-    if (!groupInput.trim() || !onCreate) return;
-
-    try {
-      await onCreate(groupInput.trim());
-      setGroupInput("");
-    } catch (error) {
-      console.error("Erro ao criar grupo:", error);
-    }
-  };
+  if (!group) return null;
 
   const handleUpdateTitle = async () => {
-    if (!title.trim() || !group) return;
-
-    try {
-      await updateGroup(group.id, title.trim());
-      setEditingTitle(false);
-    } catch (error) {
-      console.error("Erro ao atualizar título:", error);
-      setTitle(group.title);
-    }
+    if (!title.trim()) return;
+    await updateGroup(group.id, title);
+    setEditingTitle(false);
   };
 
   const handleDeleteGroup = async () => {
-    if (!group) return; // <-- Adicione esta linha!
-
-    if (window.confirm(`Tem certeza que deseja deletar esse Grupo"?`)) {
-      try {
-        await deleteGroup(group.id);
-        console.log(" Grupo deletado");
-      } catch (error) {
-        console.log(error);
-        alert("Erro ao deletar atividade. Tente novamente.");
-      }
+    if (confirm(`Deseja deletar o grupo "${group.title}"?`)) {
+      await deleteGroup(group.id);
     }
   };
 
-  const handleGroupKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (group) {
-        handleUpdateTitle();
-      } else {
-        handleCreateGroup();
-      }
-    }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      if (editingTitle) {
-        setTitle(group?.title ?? "");
-        setEditingTitle(false);
-      } else {
-        setGroupInput("");
-        onCancel?.();
-      }
-    }
-  };
 
-  // ========== HANDLERS DE ATIVIDADES ==========
-
-  const handleAddActivity = async (description: string) => {
-    if (!group) return;
-    try {
-      await createActivity(group.id, description);
-    } catch (error) {
-      console.error("Erro ao criar atividade:", error);
-    }
-  };
-
-  const handleUpdateActivity = async (
-    activityId: string,
-    description: string,
-    deliveryDate?: string
-  ) => {
-    if (!group) return;
-
-    try {
-      await updateActivity(group.id, activityId, description, deliveryDate);
-    } catch (error) {
-      console.error("Erro ao atualizar atividade:", error);
-    }
-  };
-
-  const handleDeleteActivity = async (activityId: string) => {
-    if (!group || !confirm("Deseja realmente excluir esta atividade?")) return;
-
-    try {
-      await deleteActivity(group.id, activityId); //
-    } catch (error) {
-      console.error("Erro ao deletar atividade:", error);
-    }
-  };
-
-  const handleToggleActivity = async (activityId: string) => {
-    if (!group) return;
-    try {
-      await toggleActivity(group.id, activityId);
-    } catch (error) {
-      console.error("Erro ao alternar atividade:", error);
-    }
-  };
-
-  // Modo criação de grupo
-  if (!group) {
-    return (
-      <div className="bg-[#320df1] h-12 flex justify-between items-center text-[18px] font-bold w-64">
-        <input
-          type="text"
-          value={groupInput}
-          onChange={(e) => setGroupInput(e.target.value)}
-          onKeyDown={handleGroupKeyDown}
-          onBlur={onCancel}
-          placeholder="Nome do Grupo"
-          className="border-none text-white ml-4 focus:outline-none pl-6 bg-transparent placeholder-blue-200"
-          autoFocus
-          maxLength={50}
-        />
-      </div>
-    );
-  }
 
   // Grupo existente
   return (
     <div className="bg-[#efedee] border border-[#b3b2b2] w-64">
       {/* Header do Grupo */}
-      <div
-        className="bg-[#320df1] text-white h-12  items-center text-[18px] font-bold pl-5 cursor-pointer flex justify-between"
-        onClick={() => !editingTitle && setEditingTitle(true)}
-        title="Clique para editar o nome do grupo"
-      >
+      <div className="bg-[#320df1] text-white h-12 flex items-center justify-between px-4 cursor-pointer text-[20px] font-semibold">
         {editingTitle ? (
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={handleGroupKeyDown}
             onBlur={handleUpdateTitle}
-            className="border-none text-white w-full focus:outline-none bg-transparent"
+            onKeyDown={(e) => e.key === "Enter" && handleUpdateTitle()}
+            className="bg-transparent text-white w-full focus:outline-none "
             autoFocus
-            maxLength={50}
-            aria-label="Editar nome do grupo"
+            title="text"
           />
         ) : (
-          <span className="truncate">{title}</span>
+          <span onClick={() => setEditingTitle(true)} className="truncate">
+            {group.title}
+          </span>
         )}
         <button
           onClick={handleDeleteGroup}
-          onMouseDown={(e) => {
-            // Impede que o input perca o foco (onBlur) ao clicar no botão de deletar
-            e.preventDefault();
-          }}
-          className="text-red-500  p-1 rounded transition-colors pr-3 cursor-pointer"
-          title="Deletar atividade"
+          className="text-red-500"
+          title="text"
         >
           <MdDelete size={20} />
         </button>
@@ -185,14 +65,7 @@ export function GroupCard({ group, onCreate, onCancel }: GroupCardProps) {
 
       {/* Lista de Atividades */}
       <div className="p-3">
-        <ActivityList
-          groupId={group.id}
-          activities={group.activities || []}
-          onAdd={handleAddActivity}
-          onUpdate={handleUpdateActivity}
-          onDelete={handleDeleteActivity}
-          onToggle={handleToggleActivity}
-        />
+        <ActivityList groupId={group.id} activities={group.activities || []} />
       </div>
     </div>
   );

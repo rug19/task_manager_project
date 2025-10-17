@@ -4,19 +4,14 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { MdAccessTime, MdClose, MdDragIndicator } from "react-icons/md";
 import { formatDate, isOverdue } from "../utils/dateHelpers";
+import { useGroupStore } from "../store/useGroupStore";
 
 interface ActivityItemProps {
   id: string;
   description: string;
   completed?: boolean;
   deliveryDate?: string;
-  onUpdate: (
-    id: string,
-    description: string,
-    deliveryDate?: string
-  ) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  onToggle: (id: string) => Promise<void>;
+  groupId: string;
 }
 
 export function ActivityItem({
@@ -24,14 +19,14 @@ export function ActivityItem({
   description,
   completed = false,
   deliveryDate,
-  onUpdate,
-  onDelete,
-  onToggle,
+  groupId,
 }: ActivityItemProps) {
   const [editValue, setEditValue] = useState(description);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDateInput, setShowDateInput] = useState(!!deliveryDate);
   const [dateValue, setDateValue] = useState(deliveryDate || "");
+
+  const { updateActivity, deleteActivity, toggleActivity } = useGroupStore();
 
   const {
     attributes,
@@ -50,28 +45,13 @@ export function ActivityItem({
 
   const handleUpdate = async () => {
     if (!editValue.trim()) return;
-
-    try {
-      await onUpdate(id, editValue.trim(), dateValue || undefined);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Erro ao atualizar:", error);
-      setEditValue(description);
-    }
+    await updateActivity(groupId, id, editValue, dateValue || undefined);
+    setIsModalOpen(false);
   };
 
   const handleDelete = async () => {
-    if (
-      window.confirm(
-        `Tem certeza que deseja deletar a atividade "${description}"?`
-      )
-    ) {
-      try {
-        await onDelete(id);
-      } catch (error) {
-        console.log(error);
-        alert("Erro ao deletar atividade. Tente novamente.");
-      }
+    if (confirm(`Deseja deletar "${description}"?`)) {
+      await deleteActivity(groupId, id);
     }
   };
 
@@ -102,14 +82,14 @@ export function ActivityItem({
           isDragging ? "shadow-lg z-50" : "hover:shadow-sm"
         } transition-all`}
       >
-        <div className="flex items-center justify-start gap-1 ">
+        <div className="flex items-start justify-start gap-1 ">
           <div
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <MdDragIndicator size={20} />
+            <MdDragIndicator className="mt-1" size={20} />
           </div>
           <div className="flex flex-col   gap-2 flex-1">
             <div className="flex justify-between items-start">
@@ -134,13 +114,17 @@ export function ActivityItem({
             {deliveryDate && (
               <div
                 className={`flex items-center gap-2 text-xs p-1  w-[60%] py-1 rounded ${
-                  completed ? "bg-green-100" : isOverdue(deliveryDate, completed) ? "bg-red-100" : ""
+                  completed
+                    ? "bg-green-100"
+                    : isOverdue(deliveryDate, completed)
+                    ? "bg-red-100"
+                    : "bg-gray-200"
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={completed}
-                  onChange={() => onToggle(id)}
+                  onChange={() => toggleActivity(groupId, id)}
                   className="cursor-pointer"
                   aria-label="Marcar atividade como concluída"
                 />

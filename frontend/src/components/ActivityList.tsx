@@ -7,30 +7,18 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useGroupStore } from "../store/useGroupStore";
 
 interface ActivityListProps {
   groupId: string;
   activities: Activity[];
-  onAdd: (description: string) => Promise<void>;
-  onUpdate: (
-    activityId: string,
-    description: string,
-    deliveryDate?: string
-  ) => Promise<void>;
-  onDelete: (activityId: string) => Promise<void>;
-  onToggle: (activityId: string) => Promise<void>;
 }
 
-export function ActivityList({
-  groupId,
-  activities,
-  onAdd,
-  onUpdate,
-  onDelete,
-  onToggle,
-}: ActivityListProps) {
+export function ActivityList({ groupId, activities }: ActivityListProps) {
   const [newActivity, setNewActivity] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { createActivity } = useGroupStore();
 
   // Drop zone para aceitar cards de outros grupos
   const { setNodeRef } = useDroppable({
@@ -39,14 +27,9 @@ export function ActivityList({
 
   const handleAdd = async () => {
     if (!newActivity.trim()) return;
-
-    try {
-      await onAdd(newActivity.trim());
-      setNewActivity("");
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Erro ao criar atividade:", error);
-    }
+    await createActivity(groupId, newActivity);
+    setNewActivity("");
+    setIsModalOpen(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -70,14 +53,12 @@ export function ActivityList({
         {/* Lista de atividades */}
         {activities.map((activity) => (
           <ActivityItem
+            groupId={groupId}
             key={activity.id}
             id={activity.id}
             description={activity.description}
             completed={activity.completed}
             deliveryDate={activity.deliveryDate}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onToggle={onToggle}
           />
         ))}
       </SortableContext>
