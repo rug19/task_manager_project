@@ -14,7 +14,7 @@ export interface GroupStore {
   deleteGroup: (id: string) => Promise<void>;
 
   // ========== AÇÕES DE ATIVIDADE ==========
-  createActivity: (groupId: string, description: string) => Promise<void>;
+  createActivity: (groupId: string, description: string, deliveryDate?: string) => Promise<void>;
   updateActivity: (
     groupId: string,
     activityId: string,

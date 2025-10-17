@@ -47,10 +47,11 @@ export const activityApi = {
   },
 
   // POST /groups/:groupId/activities - Cria atividade
-  create: async (groupId: string, description: string): Promise<Activity> => {
+  create: async (groupId: string, description: string, deliveryDate?: string): Promise<Activity> => {
     const payload = {
       description,
       completed: false,
+      deliveryDate: deliveryDate || null,
       taskGroup: {
         id: groupId,
       },

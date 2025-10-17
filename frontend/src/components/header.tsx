@@ -6,7 +6,8 @@ import { useGroupStore } from "../store/useGroupStore";
 export default function Header() {
   const delayedCount = useDelayedCount();
 
-  const setSearchTerm = useGroupStore((state) => state.setSearchTerm);
+  const searchTerm = useGroupStore((s) => s.searchTerm);
+  const setSearchTerm = useGroupStore((s) => s.setSearchTerm);
 
   return (
     <header className="bg-[#5f55c6] h-12 flex justify-between items-center p-2 w-[100%">
@@ -16,7 +17,11 @@ export default function Header() {
             type="text"
             placeholder="Localizar Atividade"
             className="border-none rounded text-white p-1 bg-[#b8b4e6] font-semibold font-sans pl-3 focus:border-none focus:outline-none focus:text-white"
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              console.log("Header setSearchTerm:", e.target.value);
+            }}
           />
           <IconButton
             icon={<MdSearch size={25} />}
