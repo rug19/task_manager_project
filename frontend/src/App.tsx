@@ -1,11 +1,9 @@
-import "./App.css";
+import Dashboard from "./pages/dashboard";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <h1>Frontend is running...</h1>
-    </>
+    <div>
+      <Dashboard />
+    </div>
   );
 }
-
-export default App;

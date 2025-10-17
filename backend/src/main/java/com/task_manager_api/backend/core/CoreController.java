@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class CoreController<T, S extends CoreService<T, UUID, ?>> {
+public abstract class CoreController<T extends Identifiable, S extends CoreService<T, UUID, ?>> {
     protected final S service;
 
     protected CoreController(S service) {
@@ -25,11 +25,10 @@ public abstract class CoreController<T, S extends CoreService<T, UUID, ?>> {
         return ResponseEntity.ok(savedEntity);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<T> update(@PathVariable UUID id, @RequestBody T entity) {
-        service.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
-        T updatedEntity = service.save(entity);
-        return ResponseEntity.ok(updatedEntity);
+        entity.setId(id);
+        return ResponseEntity.ok(service.update(id, entity));
     }
 
     @DeleteMapping("/{id}")

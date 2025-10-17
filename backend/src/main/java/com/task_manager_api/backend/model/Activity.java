@@ -1,5 +1,7 @@
 package com.task_manager_api.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.task_manager_api.backend.core.Identifiable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Activity {
+public class Activity implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -22,7 +24,8 @@ public class Activity {
     private LocalDate deliveryDate;
     private boolean completed = false;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn(name = "task_group_id")
+    private TaskGroup taskGroup;
 }
