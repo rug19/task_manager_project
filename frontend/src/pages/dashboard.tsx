@@ -10,7 +10,6 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { MdDragIndicator } from "react-icons/md";
 import { GroupCard } from "../components/groupCard";
 import type { Activity } from "../types/types";
 import Header from "../components/header";
@@ -135,8 +134,7 @@ export default function Dashboard() {
 
       <DragOverlay>
         {activeActivity && (
-          <div className="bg-white p-3 rounded-lg shadow-2xl opacity-90 cursor-grabbing flex items-center gap-2">
-            <MdDragIndicator />
+          <div className="bg-white p-3  shadow-2xl opacity-90 cursor-grabbing flex items-center gap-2">
             <span>{activeActivity.description}</span>
           </div>
         )}

@@ -72,9 +72,9 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
   },
 
   // ========== CRIAR ATIVIDADE ==========
-  createActivity: async (groupId: string, description: string) => {
+  createActivity: async (groupId: string, description: string, deliveryDate?: string) => {
     try {
-      const newActivity = await activityApi.create(groupId, description);
+      const newActivity = await activityApi.create(groupId, description, deliveryDate);
 
       const activityWithCompleted = {
         ...newActivity,

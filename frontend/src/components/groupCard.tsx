@@ -4,18 +4,19 @@ import { useGroupStore } from "../store/useGroupStore";
 
 import { MdDelete } from "react-icons/md";
 import type { Group } from "../types/types";
+import { DeleteModal } from "./deleteModal";
 
 interface GroupCardProps {
   group: Group;
 }
 
 export function GroupCard({ group }: GroupCardProps) {
- 
   const updateGroup = useGroupStore((state) => state.updateGroup);
   const deleteGroup = useGroupStore((state) => state.deleteGroup);
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(group?.title ?? "");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   if (!group) return null;
 
@@ -26,12 +27,9 @@ export function GroupCard({ group }: GroupCardProps) {
   };
 
   const handleDeleteGroup = async () => {
-    if (confirm(`Deseja deletar o grupo "${group.title}"?`)) {
-      await deleteGroup(group.id);
-    }
+    setIsDeleteModalOpen(true);
+    await deleteGroup(group.id);
   };
-
-
 
   // Grupo existente
   return (
@@ -44,7 +42,10 @@ export function GroupCard({ group }: GroupCardProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={handleUpdateTitle}
-            onKeyDown={(e) => e.key === "Enter" && handleUpdateTitle()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleUpdateTitle();
+              if (e.key === "Escape") setEditingTitle(false);
+            }}
             className="bg-transparent text-white w-full focus:outline-none "
             autoFocus
             title="text"
@@ -55,7 +56,7 @@ export function GroupCard({ group }: GroupCardProps) {
           </span>
         )}
         <button
-          onClick={handleDeleteGroup}
+          onClick={() => setIsDeleteModalOpen(true)}
           className="text-red-500"
           title="text"
         >
@@ -67,6 +68,13 @@ export function GroupCard({ group }: GroupCardProps) {
       <div className="p-3">
         <ActivityList groupId={group.id} activities={group.activities || []} />
       </div>
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteGroup}
+        title="Excluir Grupo"
+        description={`Deseja realmente excluir?`}
+      />
     </div>
   );
 }
