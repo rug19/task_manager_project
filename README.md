@@ -9,7 +9,7 @@ Os usuários podem criar, editar, mover e excluir tarefas, bem como gerenciar gr
 
 ## 📸 Prévia do sistema
 
-![Tela Kanban](/frontend/src/assets/)
+![Tela Kanban](/frontend/src/assets/task_manager_foto.PNG)
 
 ## 🚀 Tecnologias utilizadas
 
