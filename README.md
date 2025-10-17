@@ -19,6 +19,7 @@ Os usuários podem criar, editar, mover e excluir tarefas, bem como gerenciar gr
 - **Zustand** (para gerenciamento de estado)
 - **Axios** (requisições HTTP)
 - **Tailwind CSS**
+- **DnD - kit** (drag and drop)
 
 ### ⚙️ Backend
 - **Java**
