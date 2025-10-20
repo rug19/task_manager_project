@@ -3,6 +3,7 @@ import { groupApi, activityApi } from "../services/api";
 import type { GroupStore } from "../types/groupStore.types";
 import {
   addActivityToGroup,
+  addGroup,
   deleteActivityInGroup,
   moveActivityToGroupHelper,
   toggleActivityInGroup,
@@ -34,16 +35,27 @@ export const useGroupStore = create<GroupStore>((set, get) => ({
 
   // ========== CRIAR GRUPO ==========
   createGroup: async (title: string) => {
-    try {
-      const newGroup = await groupApi.create(title);
-      set((state) => ({
-        groups: [...state.groups, newGroup],
-      }));
-    } catch (error) {
-      console.error("Erro ao criar grupo:", error);
-      throw error;
-    }
-  },
+  const tempId = "temp-" + Date.now();
+  const tempGroup = { id: tempId, title, activities: [] };
+
+  // Optimistic update: adiciona grupo temporário
+  set((state) => ({
+    groups: addGroup(state.groups, tempGroup),
+  }));
+
+  try {
+    const newGroup = await groupApi.create(title);
+    set((state) => ({
+      groups: state.groups.map((g) => (g.id === tempId ? newGroup : g)),
+    }));
+  } catch (error) {
+    set((state) => ({
+      groups: state.groups.filter((g) => g.id !== tempId),
+    }));
+    console.error("Erro ao criar grupo:", error);
+    throw error;
+  }
+},
 
   // ========== ATUALIZAR GRUPO ==========
   updateGroup: async (groupId: string, title: string) => {

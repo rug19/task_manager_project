@@ -22,8 +22,8 @@ export function GroupCard({ group }: GroupCardProps) {
 
   const handleUpdateTitle = async () => {
     if (!title.trim()) return;
-    await updateGroup(group.id, title);
     setEditingTitle(false);
+    await updateGroup(group.id, title);
   };
 
   const handleDeleteGroup = async () => {

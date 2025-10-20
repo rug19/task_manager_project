@@ -34,8 +34,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchGroups();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchGroups]);
+
 
   const filteredGroups = groups.map((group) => ({
     ...group,
@@ -46,9 +46,9 @@ export default function Dashboard() {
 
   const handleCreateGroup = async () => {
     if (!newGroupTitle.trim()) return;
-    await createGroup(newGroupTitle);
-    setNewGroupTitle("");
     setCreating(false);
+    setNewGroupTitle("");
+    await createGroup(newGroupTitle);
   };
 
   const handleDragStart = (event: DragStartEvent) => {

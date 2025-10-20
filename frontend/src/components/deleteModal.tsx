@@ -24,16 +24,16 @@ export function DeleteModal({
         <p className="text-gray-600">{description}</p>
         <div className="flex gap-4 mt-4">
           <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-300 text-gray-800 font-semibold"
-          >
-            Cancelar
-          </button>
-          <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded bg-red-600 text-white font-semibold"
+            className="px-4 py-2 rounded bg-red-600 text-white font-semibold w-24"
           >
             Excluir
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded bg-gray-300 text-gray-800 font-semibold w-24"
+          >
+            Cancelar
           </button>
         </div>
       </div>

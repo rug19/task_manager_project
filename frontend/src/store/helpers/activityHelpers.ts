@@ -1,5 +1,8 @@
 import type { Group, Activity } from "../../types/types";
 
+export function addGroup(groups: Group[], group: Group): Group[] {
+  return [...groups, group];
+}
 
 //Funcoes para atualizar o estado local do frontend (no zustand) - Optimistic update
 export function addActivityToGroup(
@@ -46,7 +49,12 @@ export function deleteActivityInGroup(
   );
 }
 
-export function toggleActivityInGroup(groups: Group[], groupId: string, activityId: string, completed: boolean): Group[] {
+export function toggleActivityInGroup(
+  groups: Group[],
+  groupId: string,
+  activityId: string,
+  completed: boolean
+): Group[] {
   return groups.map((g) =>
     g.id === groupId
       ? {
